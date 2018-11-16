@@ -1,0 +1,9 @@
+.*
+!.gitignore
+*pyc
+*npy
+*.pkl
+*.pdf
+/ddd/runs/
+bk/*
+ann_model
