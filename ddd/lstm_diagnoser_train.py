@@ -5,7 +5,7 @@ import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
-from ann_diagnoser.cnn_diagnoser import cnn_diagnoser
+from ann_diagnoser.lstm_diagnoser import lstm_diagnoser
 from data_manger.bpsk_data_tank import BpskDataTank
 from data_manger.utilities import get_file_list
 import torch
@@ -17,7 +17,7 @@ import time
 import logging
 
 #settings
-logfile = 'CNN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = 'LSTM_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
@@ -26,13 +26,8 @@ times = 5
 epsilon = 0.001
 last_limit = 20
 data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
-prefix = "cnn"
-# feature_maps_vec = [(10, 20, 10), (20, 40, 10), (40, 80, 10), (80, 160, 10), \
-#                     (10, 20, 20), (20, 40, 20), (40, 80, 20), (80, 160, 20), \
-#                     (10, 20, 40), (20, 40, 40), (40, 80, 40), (80, 160, 40)]
-feature_maps_vec = [(160, 320, 40), (160, 320, 80), (160, 320, 160), \
-                    (320, 600, 40), (320, 640, 80), (320, 640, 160)]
-kernel_size = 3
+prefix = "lstm"
+hidden_size_vec = [10, 20, 40, 80]
 fc_number = 200
 #prepare data
 mana = BpskDataTank()
@@ -46,18 +41,18 @@ for t in range(times):
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 
-    for feature_maps in feature_maps_vec:
-        model_name = prefix + '{};{};{}'.format(feature_maps, kernel_size, fc_number)
-        para_name  = prefix + 'para{};{};{}'.format(feature_maps, kernel_size, fc_number)
-        fig_name = prefix + 'fig{};{};{}.jpg'.format(feature_maps, kernel_size, fc_number)
+    for hidden_size in hidden_size_vec:
+        model_name = prefix + '{};{}'.format(hidden_size, fc_number)
+        para_name  = prefix + 'para{};{}'.format(hidden_size, fc_number)
+        fig_name = prefix + 'fig{};{}.jpg'.format(hidden_size, fc_number)
 
-        diagnoser = cnn_diagnoser(kernel_size, feature_maps, fc_number)
+        diagnoser = lstm_diagnoser(hidden_size, fc_number)
         print(diagnoser)
         loss = nn.CrossEntropyLoss()
         optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)
 
         #train
-        epoch = 400
+        epoch = 2000
         batch = 1000
         train_loss = []
         running_loss = 0.0
