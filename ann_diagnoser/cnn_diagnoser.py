@@ -2,22 +2,31 @@
 This file defines the basic CNN diagnoser for BPSK communication system
 The ANN is composed of a CNN module and a FC(Full Connection) module.
 
-The CNN module has 3 CNN layers. We try to keep size of the input data by
-setting padding = (kernel_size-1)/2. If kernel_size is an odd number, the size of
-the input data will be reserved. But if kernel_size is an even number, the size will
-plus one on both heigth and width. The kernel_size for the first two CNN layers 
-should be setted as the same but the channel number can be control by featrue_maps
-independently. The last CNN module is used to merge all the channel so we set the 
-kernel_size as 1 and padding as 0 by default.
+The data organization method is from:
+    R. Zhao, R. Yan, Z. Chen, K. Mao, P. Wang, and R. X. Gao, 
+    “Deep learning and its applications to machine health monitoring,” 
+    Mech. Syst. Signal Process., vol. 115, pp. 213–237, 2019.
 
-The FC module has 3 layers as well. The first layer maps all CNN output into a defined
-vector, then the second layer maps them further into fault features. The last SoftMax 
-layer is used to predict fault probability distribution based on the fault features.
+The CNN structure is from:
+    L. Wen, X. Li, L. Gao, and Y. Zhang, 
+    “A New Convolutional Neural Network Based Data-Driven Fault Diagnosis Method,” 
+    IEEE Trans. Ind. Electron., vol. 65, no. 7, pp. 1–1, 2017.
 
-The data should be:
-                    batch × 5 × w(100 by default)
-The output should be:
-                    batch × 6
+Data organization:
+    input: batch × feature × length
+    output: batch × (fault_number+1)
+
+There are 10 layers in the network.
+    01. Conv1d
+    02. Maxpool
+    03. Conv1d
+    04. Maxpool
+    05. Conv1d
+    06. Maxpool
+    07. Conv1d
+    08. Maxpool
+    09. FC
+    10. FC
 """
 import torch
 import torch.nn as nn
@@ -28,60 +37,61 @@ class cnn_diagnoser(nn.Module):
     """
     The basic diagnoser constructed by Classic CNN
     """
-    def __init__(self, kernel_size, feature_maps, fc_number, w=100, pool=True):
+    def __init__(self, kernel_sizes, feature_maps, fc_numbers, input_size=(5, 128)):
         '''
-        kernel_size: an int or a tuple.
-        feature_maps: a tuple, the feature numbers of the fisrt and second convolutional layers.
-        fc_numbers: an int, the hidden number of full connection layers.
-        w: an int, the length of data
-        pool: a bool, if conduct pooling
+        Args:
+            kernel_sizes: an int list or tuple whose length = 4. 
+                Store the kernel sizes of the four Conv1d layers.
+            feature_maps: an int list or tuple whose length = 4.
+                Store the output feature numbers of the four Conv1d layers.
+            fc_numbers: an int list or tuple whose length = 2.
+                Store the output numbers of the two full connected numbers.
+                The output number of the last FC layer should be (fault_number + 1)
+            input_size: an int list or tuple with length = 2.
+                The first number is the number of input features.
+                The second number is the number of time steps.
         ''' 
+        assert len(kernel_sizes)==4 and \
+               len(feature_maps)==4 and \
+               len(fc_numbers)==2 and \
+               len(input_size)==2
         super(cnn_diagnoser, self).__init__()
+        self.kernel_sizes = kernel_sizes
         self.feature_maps = feature_maps
-        self.fc_number = fc_number
-        self.w = w
-        if isinstance(kernel_size, int):
-            self.padding = ((kernel_size-1)//2, (kernel_size-1)//2)
-            kernel_size = (kernel_size, kernel_size)
-        elif isinstance(kernel_size, tuple):
-            self.padding = ((kernel_size[0]-1)//2, (kernel_size[1]-1)//2)
-        else:
-            raise Exception('Error in kernel_size')
-        self.kernel_size = kernel_size
-        self.delta = (2*self.padding[0]-kernel_size[0]+1, 2*self.padding[1]-kernel_size[1]+1)
-        if pool:
-            pool_kernel = (1, kernel_size[1])
-        else:
-            pool_kernel = (1, 1) # means no pooling
-        self.size_after_pooling = ((5+2*self.delta[0]-(pool_kernel[0]-1) - 1)//pool_kernel[0] + 1,
-                                   (w+2*self.delta[1]-(pool_kernel[1]-1) - 1)//pool_kernel[1] + 1)
+        self.fc_number = fc_numbers
+        self.input_size = input_size
+        self.padding = [(i-1)//2 for i in kernel_sizes]
+        self.pooling = 2 # Pooling size is set as 2
+        delta = [(2*p-k+1) for p, k in zip(self.padding, kernel_sizes)]
+        self.cnn_out_length = input_size[1]
+        for i in delta:
+            self.cnn_out_length = (self.cnn_out_length + i)//self.pooling
         
-        self.cnn_sequence = nn.Sequential(
-                            # (1, 5, w)=>(feature_maps[0], 5+delta[0], w+delta[1])
-                            nn.Conv2d(1, feature_maps[0], kernel_size, padding=self.padding),
+        self.cnn_sequence = nn.Sequential(                                                                              #           Length (pooling=2)
+                            nn.Conv1d(input_size[0], feature_maps[0], kernel_sizes[0], padding=self.padding[0]),        # L1        input_size[1] + delta[0]
                             nn.ReLU(),
-                            # (feature_maps[0], 5+delta[0], w+delta[1])
-                            # =>(feature_maps[1], 5+2delta[0], w+2delta[1])
-                            nn.Conv2d(feature_maps[0], feature_maps[1], kernel_size, padding=self.padding),
+                            nn.MaxPool1d(self.pooling),                                                                 # L2        (input_size[1] + delta[0])//2
+                            nn.Conv1d(feature_maps[0], feature_maps[1], kernel_sizes[1], padding=self.padding[1]),      # L3        (input_size[1] + delta[0])//2 + delta[1]
                             nn.ReLU(),
-                            # Setting kernel_size as 1 and padding as 0 to merge all the features from different channels
-                            # (feature_maps[1], 5+2delta[0], w+2delta[1])
-                            # => (feature_maps[2], 5+2delta[0], w+2delta[1])
-                            nn.Conv2d(feature_maps[1], feature_maps[2], 1),
-                            nn.MaxPool2d(pool_kernel),
+                            nn.MaxPool1d(self.pooling),                                                                 # L4        ((input_size[1] + delta[0])//2 + delta[1])//2
+                            nn.Conv1d(feature_maps[1], feature_maps[2], kernel_sizes[2], padding=self.padding[2]),      # L5        ((input_size[1] + delta[0])//2 + delta[1])//2 + delata[2]
+                            nn.ReLU(),
+                            nn.MaxPool1d(self.pooling),                                                                 # L6        (((input_size[1] + delta[0])//2 + delta[1])//2 + delata[2])//2
+                            nn.Conv1d(feature_maps[2], feature_maps[3], kernel_sizes[3], padding=self.padding[3]),      # L7        (((input_size[1] + delta[0])//2 + delta[1])//2 + delata[2])//2 + delta[3]
+                            nn.ReLU(),
+                            nn.MaxPool1d(self.pooling),                                                                 # L8        ((((input_size[1] + delta[0])//2 + delta[1])//2 + delta[2])//2 + delta[3])//2
                         )
 
         self.fc_sequence = nn.Sequential(
-                            # feature_maps[2]×size_after_pooling[0]×size_after_pooling[1]=>fc_number
-                            nn.Linear(feature_maps[2]*self.size_after_pooling[0]*self.size_after_pooling[1], fc_number),
+                            nn.Linear(self.cnn_out_length*feature_maps[-1], fc_numbers[0]),
                             nn.ReLU(),
-                            nn.BatchNorm1d(fc_number),
-                            nn.Linear(fc_number, 7),
+                            nn.BatchNorm1d(fc_numbers[0]),
+                            nn.Linear(fc_numbers[0], fc_numbers[1]),
                             nn.Softmax(1),
                         )
 
     def forward(self, x):
         x = self.cnn_sequence(x)
-        x = x.view(-1, self.feature_maps[2]*self.size_after_pooling[0]*self.size_after_pooling[1])
+        x = x.view(-1, self.cnn_out_length*self.feature_maps[-1])
         x = self.fc_sequence(x)
         return x

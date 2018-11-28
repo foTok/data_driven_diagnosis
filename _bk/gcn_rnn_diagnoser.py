@@ -31,12 +31,13 @@ class GCN(nn.Module):
 
     def forward(self, input):
         batch = input.size(0)
+        node = input.size(1)
         weight = self.weight.expand(batch, -1, -1)
         adj = self.adj.expand(batch, -1, -1)
         support = torch.bmm(input, weight)
         output = torch.bmm(adj, support)
         if self.bias is not None:
-            bias = self.bias.expand(batch, -1)
+            bias = self.bias.expand(batch, node, self.out_features)
             return output + bias
         else:
             return output
@@ -56,7 +57,7 @@ class GCN(nn.Module):
 
 
 
-class gnn_rnn_diagnoser(nn.Module):
+class gcn_rnn_diagnoser(nn.Module):
     """
     The basic diagnoser constructed by GNN
     """
@@ -64,15 +65,16 @@ class gnn_rnn_diagnoser(nn.Module):
         '''
         adj: graph structure over variables, 5×5. graph[i, j]==1 mean an edge from i to j
              graph should be a pytorch Tensor
-        feature_maps: the features in each layer, incluing the input layer, the last one not included
+        feature_maps: the features in each layer
         hidden_size: the size of the hidden states
         fc_number: the fc number for the output module
         '''
-        super(gnn_rnn_diagnoser, self).__init__()
+        super(gcn_rnn_diagnoser, self).__init__()
         self.adj = adj.t()
         self.node_num = len(adj)
-        self.feature_maps = feature_maps
         self.last_features = hidden_size // self.node_num
+        feature_maps = [self.last_features + 1] + feature_maps
+        self.feature_maps = feature_maps
         self.hidden_size = self.last_features * self.node_num
         self.fc_number = fc_number
         self.state = None
@@ -85,7 +87,7 @@ class gnn_rnn_diagnoser(nn.Module):
             self.gcn.append(gcn)
         gcn = nn.Sequential(
                 GCN(feature_maps[-1], self.last_features, self.adj),
-                nn.ReLU(),
+                nn.Tanh(),
             )
         self.gcn.append(gcn)
         self.output = nn.Sequential(
@@ -114,11 +116,13 @@ class gnn_rnn_diagnoser(nn.Module):
         x: batch × nodes × time =>  time × batch × nodes
         state: batch × hidden_size
         '''
+        batch = x.size(0)
+        time = x.size(3)
         # batch × nodes × time =>  time × batch × nodes
+        x = x.view(-1, self.node_num, time)
         x = x.permute([2, 0, 1])
-        batch = x.size(1)
         state = torch.zeros([batch, self.node_num, self.last_features], requires_grad=True)
-        for t in range(len(x.size(0))):
+        for t in range(time):
             x_t = x[t,:,:]
             state = self.gcn_forward(x_t, state)
         x_end = x[-1,:,:]

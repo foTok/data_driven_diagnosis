@@ -7,7 +7,6 @@ This file implement the basic GNN proposed in
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 class gnn_rnn_diagnoser(nn.Module):
     """
@@ -27,8 +26,8 @@ class gnn_rnn_diagnoser(nn.Module):
         self.node_num = node_num
         self.f_input_sizes = []
         self.f = []
-        for _ in range(node_num):
-            self.f_input_sizes.append((self.fml_state_num + 1)*torch.sum(graph[:, 0]))
+        for i in range(node_num):
+            self.f_input_sizes.append(int((self.fml_state_num + 1)*torch.sum(graph[:, i])))
         # The RNN layers
         for i in range(node_num):
             f = nn.Sequential(
@@ -37,7 +36,7 @@ class gnn_rnn_diagnoser(nn.Module):
                 nn.Linear(fc_numbers[0], fc_numbers[1]),
                 nn.ReLU(),
                 nn.Linear(fc_numbers[1], self.fml_state_num),
-                nn.ReLU(),
+                nn.Tanh(),
             )
             self.f.append(f)
         # Output layers
@@ -51,21 +50,29 @@ class gnn_rnn_diagnoser(nn.Module):
 
     def forward(self, x):
         '''
-        x: batch × nodes × time =>  time × batch × nodes
+        x: batch × 1 × nodes × time =>  time × batch × nodes
         state: batch × 5 × fml_state_num
         '''
-        # batch × nodes × time =>  time × batch × nodes
+        # batch × 1 × nodes × time =>  time × batch × nodes
+        batch = x.size(0)
+        time = x.size(3)
+        x = x.view(-1, self.node_num, time)
         x = x.permute([2, 0, 1])
-        batch = x.size(1)
         state = torch.zeros([batch, self.node_num, self.fml_state_num], requires_grad=True)
         for t in range(x.size(0)):
+            state_ = []
             for i in range(self.node_num):
-                fml_i = np.nonzero(self.graph[:, i])[0]
+                fml_i = torch.nonzero(self.graph[:, i]).view(1,-1)[0]
                 x_ti = x[t, :, fml_i]
                 s_ti = state[:,fml_i,:]
                 s_ti = s_ti.view(batch, -1)
                 in_i = torch.cat((x_ti, s_ti), 1)
-                state[:, i, :] = self.f[i](in_i)
+                #state[:, i, :] = self.f[i](in_i)
+                state_i = self.f[i](in_i)
+                state_.append(state_i)
+            state_ = torch.cat((state_), 1)
+            state_ = state_.view(batch, self.node_num, self.fml_state_num)
+            state = state_
         state = state.view(batch, -1)
         in_all = torch.cat((x[-1,:,:], state),1)
         out = self.output(in_all)

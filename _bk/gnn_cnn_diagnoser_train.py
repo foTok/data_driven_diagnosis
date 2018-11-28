@@ -5,7 +5,7 @@ import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
-from ann_diagnoser.lstm_diagnoser import lstm_diagnoser
+from ann_diagnoser.gnn_cnn_diagnoser import gnn_cnn_diagnoser
 from data_manger.bpsk_data_tank import BpskDataTank
 from data_manger.utilities import get_file_list
 import torch
@@ -16,48 +16,57 @@ import numpy as np
 import time
 import logging
 
-#settings
-logfile = 'LSTM_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+# settings
+logfile = 'GNN_CNN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
 train_id = 1
 times = 5
+epsilon = 0.001
+last_limit = 20
 data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
-prefix = "lstm"
-hidden_size_vec = [32, 64, 128, 256]
-fc_numbers = (256, 7)
-#prepare data
+prefix = "gnn_cnn"
+feature_maps_vec = [[10, 20], [20, 40], [40, 80]]
+fc_number = 200
+# prepare data
 mana = BpskDataTank()
-step_len=128
+step_len=100
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
+# graph
+# m p c s0 s1
+graph = torch.Tensor([[1, 0, 0, 1, 0],
+                      [0, 1, 0, 1, 0],
+                      [0, 0, 1, 1, 0],
+                      [0, 0, 0, 1, 1],
+                      [0, 0, 0, 0, 1]])
 
 for t in range(times):
     model_path = parentdir + '\\ddd\\ann_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 
-    for hidden_size in hidden_size_vec:
-        model_name = prefix + '{};{}'.format(hidden_size, fc_numbers)
-        para_name  = prefix + 'para{};{}'.format(hidden_size, fc_numbers)
-        fig_name = prefix + 'fig{};{}.jpg'.format(hidden_size, fc_numbers)
+    for feature_maps in feature_maps_vec:
+        model_name = prefix + '{};{}'.format(feature_maps, fc_number)
+        para_name  = prefix + 'para{};{}'.format(feature_maps, fc_number)
+        fig_name = prefix + 'fig{};{}.jpg'.format(feature_maps, fc_number)
 
-        diagnoser = lstm_diagnoser(hidden_size, fc_numbers)
+        diagnoser = gnn_cnn_diagnoser(graph, feature_maps, fc_number)
         print(diagnoser)
         loss = nn.CrossEntropyLoss()
         optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)
 
         #train
-        epoch = 2000
+        epoch = 400
         batch = 1000
         train_loss = []
         running_loss = 0.0
         bg_time = time.time()
         for i in range(epoch):
             inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
-            inputs = inputs.view(-1,5,step_len)
+            inputs = inputs.view(-1,1,5,step_len)
             labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1).long()
             optimizer.zero_grad()
             outputs = diagnoser(inputs)

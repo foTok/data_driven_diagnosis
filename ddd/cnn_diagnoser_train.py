@@ -21,22 +21,16 @@ logfile = 'CNN_Training_' + time.asctime( time.localtime(time.time())).replace("
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
-train_id = 0
+train_id = 1
 times = 5
-epsilon = 0.001
-last_limit = 20
 data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
 prefix = "cnn"
-# feature_maps_vec = [(10, 20, 10), (20, 40, 10), (40, 80, 10), (80, 160, 10), \
-#                     (10, 20, 20), (20, 40, 20), (40, 80, 20), (80, 160, 20), \
-#                     (10, 20, 40), (20, 40, 40), (40, 80, 40), (80, 160, 40)]
-feature_maps_vec = [(160, 320, 40), (160, 320, 80), (160, 320, 160), \
-                    (320, 600, 40), (320, 640, 80), (320, 640, 160)]
-kernel_size = 3
-fc_number = 200
+kernel_sizes = (8, 4, 4, 4)
+feature_maps_vec = [(8, 16, 32, 64), (16, 32, 64, 128), (32, 64, 128, 256), (64, 128, 256, 512)]
+fc_numbers = (256, 7)
 #prepare data
 mana = BpskDataTank()
-step_len=100
+step_len=128
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
@@ -47,24 +41,24 @@ for t in range(times):
         os.makedirs(model_path)
 
     for feature_maps in feature_maps_vec:
-        model_name = prefix + '{};{};{}'.format(feature_maps, kernel_size, fc_number)
-        para_name  = prefix + 'para{};{};{}'.format(feature_maps, kernel_size, fc_number)
-        fig_name = prefix + 'fig{};{};{}.jpg'.format(feature_maps, kernel_size, fc_number)
+        model_name = prefix + '{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
+        para_name  = prefix + 'para{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
+        fig_name = prefix + 'fig{};{};{}.jpg'.format(feature_maps, kernel_sizes, fc_numbers)
 
-        diagnoser = cnn_diagnoser(kernel_size, feature_maps, fc_number)
+        diagnoser = cnn_diagnoser(kernel_sizes, feature_maps, fc_numbers)
         print(diagnoser)
         loss = nn.CrossEntropyLoss()
         optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)
 
         #train
-        epoch = 400
+        epoch = 500
         batch = 1000
         train_loss = []
         running_loss = 0.0
         bg_time = time.time()
         for i in range(epoch):
             inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
-            inputs = inputs.view(-1,1,5,step_len)
+            inputs = inputs.view(-1, 5, step_len)
             labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1).long()
             optimizer.zero_grad()
             outputs = diagnoser(inputs)

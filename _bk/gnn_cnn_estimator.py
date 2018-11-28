@@ -18,7 +18,7 @@ from ddd.utilities import single_fault_statistic
 from ddd.utilities import acc_fnr_and_fpr
 
 #settings
-logfile = 'CNN_estimation_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = 'GNN_CNN_estimation_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
@@ -26,19 +26,19 @@ train_id = 1
 times = 5
 data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
 test_batch = 2000
-prefix = "cnn"
-kernel_sizes = (8, 4, 4, 4)
-feature_maps_vec = [(8, 16, 32, 64), (16, 32, 64, 128), (32, 64, 128, 256), (64, 128, 256, 512)]
-fc_numbers = (256, 7)
+prefix = "gnn_cnn"
+feature_maps_vec = [[10, 20], [20, 40], [40, 80]]
+fc_number = 200
+
 #prepare data
 mana = BpskDataTank()
-step_len=128
+step_len=100
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
 inputs, labels, _, res = mana.random_batch(test_batch, normal=0.4, single_fault=10, two_fault=0)
-inputs = inputs.view(-1, 5, step_len)
+inputs = inputs.view(-1,1,5,step_len)
 label = labels.detach().numpy()
 real_label = np.sum(label*np.array([1,2,3,4,5,6]), 1)
 
@@ -51,7 +51,7 @@ for t in range(times):
         os.makedirs(model_path)
     
     for feature_maps in feature_maps_vec:
-        model_name = prefix + '{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
+        model_name = prefix + '{};{}'.format(feature_maps, fc_number)
         d = torch.load(model_path + model_name)
         d.eval()
 
