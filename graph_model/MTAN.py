@@ -14,7 +14,7 @@ from graph_model.utilities import graphviz_Bayes
 
 class MTAN:
     """
-    Learn a Tree Augmented Naive Bayesian Network.isinstance
+    Learn a Tree Augmented Naive Bayesian Network
     """
     #init
     def __init__(self):

@@ -1,165 +1,117 @@
-"""
+'''
 defines some components used by Bayesian network
-"""
+'''
 import numpy as np
 
 class Bayesian_structure:
-    """
+    '''
     store Bayesian structure
-    """
-    def __init__(self, n=None):
-        """
-        n is the number of nodes
-        """
-        #adjacent matrix
-        if n is not None:
-            self.struct = np.array([[0] * n] * n)
-        else:
-            self.struct = None
-        #for iteration
-        self.n = n
-        self.i = 0
-        self.skip = False
-    
-    def set_skip(self):
-        """
-        skip the first 6 nodes
-        """
-        self.i = 6
-        self.skip = True
-
-    def reset_skip(self):
-        """
-        reset skip
-        """
-        self.i = 0
-        self.skip = False
-
-    def set_n(self, n):
-        """
-        set node numbers
-        """
-        self.n = n
-        self.struct = np.array([[0] * n] * n)
-
-    def set_struct(self, struct):
-        """
-        set the struct
-        """
-        self.struct = struct
-        self.n = len(struct)
+    '''
+    def __init__(self, fault, obs):
+        '''
+        The first f variables are the faults and the last n variables are observations.
+        Args:
+            fault: a list or tuple of strings, contains the fault names
+            obs: a list or tuple of strings, contains the observation variables
+        '''
+        self._fault = fault
+        self._obs = obs
+        self._f = len(fault)
+        self._n = len(obs)
+        self._v = self._f+self._n
+        self._adj = np.array([[0]*self._v]*self._v)
 
     def add_edge(self, i, j):
-        """
-        set connection from node i to node j
-        """
-        assert i != j
-        self.struct[i, j] = 1
-        self.struct[j, i] = 0
+        assert isinstance(i, int) and isinstance(j, int)
+        assert 0<=i<self._v and self._f<=j<self._v and i!=j
+        if i<self._f: # fault->obs
+            if self._adj[i,j]==0:
+                self._adj[i,j]=1
+                return True
+        else: # obs->obs
+            if self._adj[i,j]==0 and self._adj[j,i]==0 and not self.has_path(j, i):
+                self._adj[i,j]=1
+                return True
+        return False
 
     def remove_edge(self, i, j):
-        """
-        remove edge between node i and node j
-        """
-        assert i != j
-        self.struct[i, j] = 0
-        self.struct[j, i] = 0
+        assert isinstance(i, int) and isinstance(j, int)
+        assert 0<=i<self._v and self._f<=j<self._v and i!=j
+        if i<self._f: # fault->obs
+            if self._adj[i,j]==1:
+                self._adj[i,j]=0
+                return True
+        else: # obs->obs
+            if self._adj[i,j]==1:
+                self._adj[i,j]=0
+                return True
+        return False
 
     def reverse_edge(self, i, j):
-        """
-        reverse edge between node i and node j
-        when there is no connection, nothing happens
-        """
-        assert i != j
-        self.struct[i, j], self.struct[j,i] = self.struct[j, i], self.struct[i,j]
-
-    def get_edge(self, i, j):
-        """
-        get the connection from node i and node j
-        """
-        assert i != j
-        return self.struct[i, j]
-
-    # def is_DAG_DFS(self, i, color):
-    #     """
-    #     deep first search
-    #     return if it is acycle in this search
-    #     True: acycle
-    #     False:cycle
-    #     """
-    #     color[i] = 1
-    #     for j in range(self.n):
-    #         if self.struct[i, j] != 0:
-    #             if color[j] == 1:
-    #                 return False
-    #             elif color[j] == -1:
-    #                 continue
-    #             else:
-    #                 if not self.is_DAG_DFS(j, color):
-    #                     return False
-    #     color[i] == -1
-    #     return True
-
-    # def is_acycle(self):
-    #     """
-    #     check if the structure is acycle
-    #     """
-    #     color = [0]*self.n
-    #     for i in range(self.n):
-    #         if not self.is_DAG_DFS(i, color):
-    #             return False
-    #     return True
+        assert isinstance(i, int) and isinstance(j, int)
+        assert 0<=i<self._v and self._f<=j<self._v and i!=j
+        if i<self._f:
+            return False
+        else:
+            if self._adj[i,j]==1 and self._adj[j,i]==0:
+                self._adj[i,j]==0
+                if self.has_path(i,j):
+                    self._adj[i,j]=1
+                    return False
+                else:
+                    self._adj[j,i]==1
+                    return True
+        return False
 
     def clone(self):
-        """
-        clone it
-        """
-        copy = Bayesian_structure()
-        copy.struct = self.struct.copy()
-        copy.n = self.n
-        copy.i = self.i
-        copy.skip = self.skip
+        copy = Bayesian_structure(self._fault, self._obs)
+        copy._adj = self._adj.copy()
         return copy
 
+    def has_path(self, i, j):
+        '''
+        Args:
+            i,j: int
+        Returns:
+            If there is a directed path from i to j
+        '''
+        open = {i}
+        while open:
+            p = open.pop()
+            if self._adj[p,j]==1:
+                return True
+            kids = np.nonzero(self._adj[p,:])[0]
+            for k in kids:
+                open.add(k)
+        return False
+
     def __eq__(self, other):
-        """
-        check if it is equal to other
-        """
-        return (self.struct == other.struct).all()
+        return (self._adj == other._adj).all()
 
     def __hash__(self):
-        """
-        hash function
-        """
-        return hash(tuple([tuple(i) for i in self.struct]))
+        return hash(tuple([tuple(i) for i in self._adj]))
 
     def __iter__(self):
-        """
-        enumerate all edeges
-        """
+        self._i = 0
         return self
 
     def __next__(self):
-        """
-        work with __iter__
-        """
-        if self.i == self.n:
-            self.i = 0 if not self.skip else 6
+        if self._i == self._v:
             raise StopIteration
-        parents = list(self.struct[:, self.i])
+        parents = list(self._adj[:, self._i])
         parents = [i for i, v in enumerate(parents) if v==1]
-        kid = [self.i]
+        kid = [self._i]
         fml = parents + kid
-        self.i = self.i + 1
+        self._i += 1
         return tuple(fml)
 
 class Bayesian_Gaussian_parameter:
-    """
+    '''
     This class is used to store Gaussian parameters for a Bayesian network.
     Different from the common Gaussian parameters in which the variance is a constance.
     This class assumes that both the mean value and the variance value for a Gassian distribution
     are determined by a set of linear real value parameters.
-    """
+    '''
     def __init__(self):
         #family tank is a set to store parameters.
         #KEY FML: (parents, kid).
@@ -177,19 +129,25 @@ class Bayesian_Gaussian_parameter:
         self.obs_ass    = {}
 
     def add_fml(self, fml, parameters):
-        """
+        '''
         add parameters into self.fml_tank
-        """
+        '''
         self.fml_tank[fml] = parameters
 
     def add_obs_ass(self, id, value):
-        """
+        '''
         Add a new observation or assumption.
-        """
+        '''
         self.obs_ass[id] = value
 
     def clear_obs_ass(self):
-        """
+        '''
         clear all the observation and assumption.
-        """
+        '''
         self.obs_ass.clear()
+
+class Bayesian_CPT:
+    '''
+    A class to store CPT
+    '''
+    pass

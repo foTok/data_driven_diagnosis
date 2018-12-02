@@ -25,7 +25,7 @@ train_id = 1
 times = 5
 data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
 prefix = "lstm"
-hidden_size_vec = [32, 64, 128, 256]
+hidden_size_vec = [32, 64, 128]
 fc_numbers = (256, 7)
 #prepare data
 mana = BpskDataTank()
