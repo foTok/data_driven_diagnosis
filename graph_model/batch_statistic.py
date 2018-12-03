@@ -35,9 +35,12 @@ def num2vec(num, bins):
         vec.append(v)
     return vec
 
-class batch_statistic:
+class CPT_BS:
     '''
-    learning a TAN structure
+    Conditional Probability Table based batch statistics
+    batch_process: it analyzes data in a batch based on considered groups.
+        There are two groups in a family: kid->parents:
+            kid ∪ parents and parents
     '''
     def __init__(self, mins, intervals, bins):
         '''
@@ -88,8 +91,8 @@ class batch_statistic:
                              = integrate{P(kid,parents)log(1/P(kid|parents))}
                              = integrate{P(kid,parents)log(P(parents)/P(kid,parents))}
         '''
-        assert kid in self._pts and parents in self._pts
-        vars = tuple(list(kid) + list(parents))
+        assert kid in self._pts and (parents in self._pts or parents==())
+        vars = tuple(sorted(list(kid) + list(parents)))
         index = vars.index(kid[0])
         assert vars in self._pts
         bins = self._bins[vars]
@@ -98,10 +101,13 @@ class batch_statistic:
         for i in range(n):
             vec = num2vec(i, bins)
             vars_v = tuple(vec)
-            vecp = vec[:index] + vec[index+1:]
-            par_v = tuple(vecp)
             Pj = self._pts[vars].p(vars_v)
-            Pp = self._pts[parents].p(par_v)
+            if parents != ():
+                vecp = vec[:index] + vec[index+1:]
+                par_v = tuple(vecp)
+                Pp = self._pts[parents].p(par_v)
+            else:
+                Pp = 1
             cost += Pj*log(Pp/Pj)
         return cost
 
@@ -118,10 +124,10 @@ class batch_statistic:
             or None
         '''
         vars, values = sort_v(kid, parents, kid_v, parents_v)
-        if vars not in self._pts or parents not in self._pts:
+        if vars not in self._pts or (parents not in self._pts and parents!=()):
             return None
         Pj = self._pts[vars].p(values)
-        Pp = self._pts[parents].p(parents_v)
+        Pp = self._pts[parents].p(parents_v) if parents!=() else 1
         return Pj/Pp
 
     def Pj(self, kid, parents, kid_v, parents_v):
@@ -141,3 +147,11 @@ class batch_statistic:
         if vars not in self._pts:
             return None
         return self._pts[vars].p(values)
+
+
+class Gauss_BS:
+    '''
+    Gaussian CPD based batch statistics
+    '''
+    def __init__(self):
+        pass
