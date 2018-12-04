@@ -4,10 +4,14 @@ defines some components used by Bayesian network
 import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
-sys.path.insert(0,parentdir) 
+sys.path.insert(0,parentdir)
 import numpy as np
+import pickle
+from math import log
 from graph_model.cpt import PT
 from graph_model.batch_statistic import sort_v
+from graph_model.utilities import Guassian_cost
+from graph_model.cpt import discretize
 
 class Bayesian_adj:
     '''
@@ -27,6 +31,9 @@ class Bayesian_adj:
         self._v = self._f+self._n
         self._adj = None
 
+    def len_var(self):
+        return self._v
+
     def empty_init(self):
         self._adj = np.array([[0]*self._v]*self._v)
 
@@ -39,9 +46,15 @@ class Bayesian_adj:
     def set_adj(self, adj):
         self._adj = adj
 
+    def available(self, i, j):
+        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+            return False
+        return True
+
     def add_edge(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        assert 0<=i<self._v and self._f<=j<self._v and i!=j
+        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+            return False
         if i<self._f: # fault->obs
             if self._adj[i,j]==0:
                 self._adj[i,j]=1
@@ -52,9 +65,22 @@ class Bayesian_adj:
                 return True
         return False
 
+    def add_perm(self, i, j):
+        assert isinstance(i, int) and isinstance(j, int)
+        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+            return False
+        if i<self._f: # fault->obs
+            if self._adj[i,j]==0:
+                return True
+        else: # obs->obs
+            if self._adj[i,j]==0 and self._adj[j,i]==0 and not self.has_path(j, i):
+                return True
+        return False
+
     def remove_edge(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        assert 0<=i<self._v and self._f<=j<self._v and i!=j
+        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+            return False
         if i<self._f: # fault->obs
             if self._adj[i,j]==1:
                 self._adj[i,j]=0
@@ -65,9 +91,22 @@ class Bayesian_adj:
                 return True
         return False
 
+    def remove_perm(self, i, j):
+        assert isinstance(i, int) and isinstance(j, int)
+        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+            return False
+        if i<self._f: # fault->obs
+            if self._adj[i,j]==1:
+                return True
+        else: # obs->obs
+            if self._adj[i,j]==1:
+                return True
+        return False
+
     def reverse_edge(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        assert 0<=i<self._v and self._f<=j<self._v and i!=j
+        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+            return False
         if i<self._f:
             return False
         else:
@@ -78,6 +117,20 @@ class Bayesian_adj:
                     return False
                 else:
                     self._adj[j,i]==1
+                    return True
+        return False
+
+    def reverse_prem(self, i, j):
+        assert isinstance(i, int) and isinstance(j, int)
+        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+            return False
+        if i<self._f:
+            return False
+        else:
+            if self._adj[i,j]==1 and self._adj[j,i]==0:
+                if self.has_path(i,j):
+                    return False
+                else:
                     return True
         return False
 
@@ -139,65 +192,65 @@ class Gauss:
         #there should be (n+1) variable in beta because there is a constant term.
         #The same for var.
         self.fml_tank   = {}
-        #Observed or assumed values.
-        #This set is used to store the currently observed values or assumed values.
-        #KEY ID, real value number.
-        #VALUE, NUM, real value number.
-        self.obs_ass    = {}
 
-    def add_fml(self, fml, parameters):
+    def add_para(self, fml, parameters):
         '''
         add parameters into self.fml_tank
         '''
+        if fml in self.fml_tank:
+            return
         self.fml_tank[fml] = parameters
 
-    def Pc(self, kid, parents, kid_v, parents_v):
+    def nLogPc(self, kid, parents, kid_v, parents_v):
         '''
         Conditional Probability
         Args:
             kid: unit tuple, (kid_id,)
             parents:tuple, (p0_id,p1_id,...)
-            kid_v: unit tuple, (kid_id_v,)
-            parents_v:tuple, (p0_id_v,p1_id_v,...)
+            kid_v: 2d np.array
+            parents_v: 2d np.array
         Returns:
             P(kid|parents) = P(parents, kid)/P(parents)
             or None
         '''
-        pass
-
-    def Pj(self, kid, parents, kid_v, parents_v):
-        '''
-        Joint Probability
-        Args:
-            kid: unit tuple, (kid_id,)
-            parents:tuple, (p0_id,p1_id,...)
-            kid_v: unit tuple, (kid_id_v,)
-            parents_v:tuple, (p0_id_v,p1_id_v,...)
-        Returns:
-            P(kid|parents) = P(parents, kid)/P(parents)
-
-            or None
-        '''
-        pass
+        fml = tuple(list(parents) + list(kid))
+        assert fml in self.fml_tank
+        beta, var, _ = self.fml_tank[fml]
+        kid_v = kid_v.reshape(-1)
+        cost = Guassian_cost(kid_v, parents_v, beta, var, norm=True)
+        return cost
 
 class CPT:
     '''
     A class to store CPT
     '''
-    def __init__(self):
+    def __init__(self, mins, intervals, bins):
+        self._mins  = np.array(mins)
+        self._intv  = np.array(intervals)
+        self._bins  = np.array(bins)
         self._pts = {}
 
-    def add_pt(self, vars, pt):
+    def _discretize(self, vars, values):
+        ind = list(vars)
+        mins = self._mins(ind)
+        intv = self._intv(ind)
+        bins = self._bins(ind)
+        d_values = discretize(values, mins, intv, bins)
+        return d_values
+
+    def add_para(self, vars, pt):
+        if vars in self._pts:
+            return
         self._pts[vars] = pt
 
-    def Pc(self, kid, parents, kid_v, parents_v):
+    def nLogPc(self, kid, parents, kid_v, parents_v):
         '''
         Conditional Probability
         Args:
             kid: unit tuple, (kid_id,)
             parents:tuple, (p0_id,p1_id,...)
-            kid_v: unit tuple, (kid_id_v,)
-            parents_v:tuple, (p0_id_v,p1_id_v,...)
+            kid_v: 2d np.array
+            parents_v: 2d np.array
         Returns:
             P(kid|parents) = P(parents, kid)/P(parents)
             or None
@@ -205,27 +258,16 @@ class CPT:
         vars, values = sort_v(kid, parents, kid_v, parents_v)
         if vars not in self._pts or (parents not in self._pts and parents!=()):
             return None
-        Pj = self._pts[vars].p(values)
-        Pp = self._pts[parents].p(parents_v) if parents!=() else 1
-        return Pj/Pp
-
-    def Pj(self, kid, parents, kid_v, parents_v):
-        '''
-        Joint Probability
-        Args:
-            kid: unit tuple, (kid_id,)
-            parents:tuple, (p0_id,p1_id,...)
-            kid_v: unit tuple, (kid_id_v,)
-            parents_v:tuple, (p0_id_v,p1_id_v,...)
-        Returns:
-            P(kid|parents) = P(parents, kid)/P(parents)
-
-            or None
-        '''
-        vars, values = sort_v(kid, parents, kid_v, parents_v)
-        if vars not in self._pts:
-            return None
-        return self._pts[vars].p(values)
+        cost = []
+        for _values, _parents_v in zip(values, parents_v):
+            _values = self._discretize(vars, values)
+            _parents_v = self._discretize(parents, _parents_v)
+            Pj = self._pts[vars].p(_values)
+            Pp = self._pts[parents].p(_parents_v) if parents!=() else 1
+            _cost = -log(Pj/Pp)
+            cost.append(_cost)
+        cost = np.mean(cost)
+        return cost
 
 
 class BN:
@@ -234,52 +276,29 @@ class BN:
     '''
     def __init__(self, fault, obs):
         self.adj = Bayesian_adj(fault, obs)
+        self.para = None
+        self.type = None
 
     def set_adj(self, adj):
         self.adj.set_adj(adj)
 
-class CPT_BN(BN):
-    """
-    CPT based Bayesian Network
-    """
-    def __init__(self, fault, obs):
-        super(CPT_BN).__init__(fault, obs)
-        self.para = CPT()
+    def set_type(self, _type, mins=None, intervals=None, bins=None):
+        if _type == 'CPT':
+            self.mins   = np.array(mins)
+            self.intervals  = np.array(intervals)
+            self.bins   = np.array(bins)
+            self.para = CPT(mins, intervals, bins)
+        elif _type == 'GAU':
+            self.para = Gauss()
+        else:
+            raise RuntimeError('Unknown types.')
 
-    def add_para(self, vars, pt):
-        self.para.add_pt(vars, pt)
+    def add_para(self, key, value):
+        self.para.add_para(key, value)
 
-    def Pc(self, kid, parents, kid_v, parents_v):
+    def nLogPc_obs(self, fault, obs):
         '''
-        Conditional Probability
-        Args:
-            kid: unit tuple, (kid_id,)
-            parents:tuple, (p0_id,p1_id,...)
-            kid_v: unit tuple, (kid_id_v,)
-            parents_v:tuple, (p0_id_v,p1_id_v,...)
-        Returns:
-            P(kid|parents) = P(parents, kid)/P(parents)
-            or None
-        '''
-        return self.para.Pc(kid, parents, kid_v, parents_v)
-
-    def Pj(self, kid, parents, kid_v, parents_v):
-        '''
-        Joint Probability
-        Args:
-            kid: unit tuple, (kid_id,)
-            parents:tuple, (p0_id,p1_id,...)
-            kid_v: unit tuple, (kid_id_v,)
-            parents_v:tuple, (p0_id_v,p1_id_v,...)
-        Returns:
-            P(kid|parents) = P(parents, kid)/P(parents)
-            or None
-        '''
-        return self.para.Pj(kid, parents, kid_v, parents_v)
-
-    def Pc_obs(self, fault, obs):
-        '''
-        This function returns the posteriori probability.
+        This function returns the negative log posteriori probability.
             P(fault|obs) = P(fault, obs)/P(fault)
         According to chain rule, P(fault) is in the chain to compute P(fault, obs).
         So, to compute P(fault|obs), just ignore P(fault) is the chain.
@@ -287,7 +306,7 @@ class CPT_BN(BN):
             fault: a string, the fault name.
             obs: the values of all monitored variables.
         '''
-        P = 1
+        nlogP = 0
         f_index = self.adj._fault.index(fault)
         values = np.array([0]*self.adj._v)
         values[f_index] = 1
@@ -296,7 +315,12 @@ class CPT_BN(BN):
         for kid, parents in self.adj:
             if kid[0] < self.adj._f:
                 continue # Ignore fault priori probability
-            kid_v = tuple(values[list(kid)])
-            parents_v = tuple(values[list(parents)])
-            P *= self.Pc(kid, parents, kid_v, parents_v)
-        return P
+            kid_v = values[list(kid)]
+            parents_v = values[list(parents)]
+            nlogP += self.para.nLogPc(kid, parents, kid_v, parents_v)
+        return nlogP
+
+    def save(self, file):
+        s = pickle.dumps(BN)
+        with open(file, "wb") as f:
+            f.write(s)

@@ -9,7 +9,6 @@ import numpy as np
 import matplotlib.pyplot as pl
 from graphviz import Digraph
 from queue import PriorityQueue
-from graph_model.graph_component import Bayesian_structure
 
 def Guassian_cost(batch, fml, beta, var, norm):
     """
@@ -157,80 +156,3 @@ def und2od(edges, order):
         else:
             graph[index1, index0] = 1
     return graph
-
-def compact_graphviz_struct(struct, file, labels):
-    """
-    graphviz the struct based on given labels and save the graph in file
-    struct: a numpy array or a Bayesian_struct
-    file: str
-    lables: a list of tuples, [(label, color),...]
-    """
-    #make sure, struct is a numpy array
-    if isinstance(struct, Bayesian_structure):
-        struct = struct.struct
-    n = len(struct)
-    G = Digraph()
-    #add nodes
-    for i in range(n):
-        if np.sum(struct[i, :]) + np.sum(struct[:, i]) > 0:
-            label, color = labels[i]
-            G.node(label, label, fillcolor=color, style="filled")
-    #add edges
-    for i in range(n):
-        for j in range(n):
-            if struct[i, j] == 1:
-                G.edge(labels[i][0], labels[j][0])
-    print(G)
-    G.render(file, view=True)
-    print("Saved in: ", file)
-
-def read_normal_data(file_name, split_point=None, snr=None):
-    """
-    read normal data directly and add noise
-    """
-    #sig: time_step × feature
-    sig = np.load(file_name)
-    #add noise
-    if snr is not None:
-        NOISE_POWER_RATIO = 1/(10**(snr/10)) if snr is not None else 0
-        signal_power = np.var(sig, 0)
-        noise_power = NOISE_POWER_RATIO * signal_power
-        noise_weight = noise_power**0.5
-        #noise with Gaussian distribution
-        noise = np.random.normal(0, 1, [len(sig), len(sig[0])]) * noise_weight
-        sig = sig + noise
-    split_point = int(len(sig) / 2) if split_point is None else split_point
-    sig = sig[:split_point, :]
-    return sig
-
-def interval(start, inter, value):
-    """
-    return the interval number of value
-    """
-    i = 0
-    start = start + inter
-    while True:
-        if value < start:
-            break
-        else:
-            start = start + inter
-            i     = i + 1
-    return i
-
-def discrete_data(data, discrete_num):
-    """
-    discrete data with same interval
-    """
-    #normalization
-    std         = np.sqrt(np.var(data, axis=0))
-    mean        = np.mean(data, axis=0)
-    norm_data   = (data - mean)/std
-    dis_data    = np.zeros(norm_data.shape)
-    minmal      = np.min(data, axis=0)
-    inter       = (np.max(data, axis=0) - minmal) / discrete_num
-    assert (inter != 0).any()
-    M, N = data.shape
-    for i in range(N):
-        for j in range(M):
-            dis_data[j, i] = interval(minmal[i], inter[i], data[j, i])
-    return dis_data
