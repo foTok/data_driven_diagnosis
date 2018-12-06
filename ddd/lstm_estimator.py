@@ -22,13 +22,13 @@ logfile = 'LSTM_estimation_' + time.asctime( time.localtime(time.time())).replac
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
-train_id = 0
-times = 5
+train_id = 1
+times = 1
 data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
 test_batch = 2000
 prefix = "lstm"
-hidden_size_vec = [10, 20, 40, 80]
-fc_number = 200
+hidden_size_vec = [32, 64, 128]
+fc_number = (256, 7)
 #prepare data
 mana = BpskDataTank()
 step_len=100
@@ -37,7 +37,6 @@ for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
 inputs, labels, _, res = mana.random_batch(test_batch, normal=0.4, single_fault=10, two_fault=0)
-inputs = inputs.view(-1,1,5,step_len)
 label = labels.detach().numpy()
 real_label = np.sum(label*np.array([1,2,3,4,5,6]), 1)
 

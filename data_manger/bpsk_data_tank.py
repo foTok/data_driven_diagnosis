@@ -199,3 +199,16 @@ class BpskDataTank():
                     if self.res:
                         res.append(self.res[index])
             return input_data, mode, para, res
+
+    def min_max(self):
+        feature_num = self.feature_num()
+        mm = np.zeros((feature_num, 2))
+        data = self.input[0]
+        for i in range(feature_num):
+            mm[i, 0] = np.min(data[i, :])
+            mm[i, 1] = np.max(data[i, :])
+        for data in self.input:
+            for i in range(feature_num):
+                mm[i, 0] = min(np.min(data[i, :]), mm[i, 0])
+                mm[i, 1] = max(np.max(data[i, :]), mm[i, 1])
+        return mm

@@ -13,7 +13,7 @@ from graph_model.batch_statistic import Gauss_BS
 from math import log
 from math import exp
 
-class GSIN:
+class GSAN:
     '''
     Greedy search improved naive Beyesian Network
     '''
@@ -27,7 +27,7 @@ class GSIN:
         self.delay  = 0
         self.fault  = fault
         self.obs    = obs  
-        self.n  = len(fault) + len(obs)
+        self.n  = 1 + len(obs)
         self.vars_r_cost_cache  = {}
         self.graph_r_cost_cache = {}
 
@@ -85,9 +85,15 @@ class GSIN:
             if vars in self.vars_r_cost_cache:
                 cost_u = self.vars_r_cost_cache[vars]
             else:#Now we know the fml is not cached
-                bins = self.bins[vars]
-                cost_u = bins.prod()
-                cost_u = log(cost_u)
+                if self.type == 'CPT':
+                    p_bins = self.bins[list(parents)]
+                    k_bin = self.bins[list(kid)]
+                    cost_u = p_bins.prod()*(k_bin[0]-1)
+                elif self.type == "GAU":
+                    cost_u = len(parents)+1
+                    cost_u = exp(cost_u)
+                else:
+                    raise RuntimeError('Unknown type.')
                 self.vars_r_cost_cache[vars] = cost_u
             cost += cost_u
         return cost
@@ -104,19 +110,21 @@ class GSIN:
     def step(self, batch, time_step=None):
         '''
         step forward
+        Args:
+            batch: the data
+            time_step: to indicate time step
+        Returns:
+            msg: a string, for log
         '''
         if not self.queue:
             print("Empty queue. Break")
             return
         best, cost = self.best_candidate()
-        if time_step is not None:
-            print("cost ",time_step, " = ", cost)
-        else:
-            print(cost)
-        self.queue.clear()
+        msg = '{}:{}'.format(time_step, cost) if time_step is not None else '{}'.format(cost)
+        #self.queue.clear()
         self.statistic.set_batch(batch)
         n = len(batch)
-        self.decay = log(n)/(2*n)
+        self.delay = log(n)/(2*n)
         # Update best
         cost = self.cost(best)
         self.queue[best] = cost
@@ -132,17 +140,18 @@ class GSIN:
                     add_cost = self.cost(add_best)
                     self.queue[add_best] = add_cost
                 # remove
-                if best.remove_prem(i, j):
+                if best.remove_perm(i, j):
                     rem_best = best.clone()
                     rem_best.remove_edge(i, j)
                     rem_cost = self.cost(rem_best)
                     self.queue[rem_best] = rem_cost
                 # reverse
-                if best.reverse_prem(i, j):
+                if best.reverse_perm(i, j):
                     rev_best = best.clone()
                     rev_best.reverse_edge(i, j)
                     rev_cost = self.cost(rev_best)
                     self.queue[rev_best] = rev_cost
+        return msg
 
     def best_BN(self):
         '''
@@ -151,7 +160,7 @@ class GSIN:
         best_adj, _ = self.best_candidate()
         bBN = BN(self.fault, self.obs)
         bBN.set_type(self.type)
-        bBN.set_adj(best_adj)
+        bBN.set_adj(best_adj.adj())
         for kid, parents in best_adj:
             if self.type == 'CPT':
                 vars = tuple(sorted(list(parents) + list(kid)))

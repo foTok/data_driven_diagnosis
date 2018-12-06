@@ -9,34 +9,12 @@ import numpy as np
 from math import log
 from math import exp
 from graph_model.cpt import PT
-from graph_model.cpt import discretize
+from graph_model.utilities import discretize
+from graph_model.utilities import sort_v
+from graph_model.utilities import num2vec
 from graph_model.utilities import Guassian_cost
 from graph_model.utilities import Guassian_cost_core
 
-def sort_v(kid, parents, kid_v, parents_v):
-    '''
-    sort varibles and values
-    Args:
-        kid: unit tuple, (kid_id,)
-        parents:tuple, (p0_id,p1_id,...)
-        kid_v: 2d np.array
-        parents_v: 2d np.array
-    '''
-    vars = list(kid) + list(parents)
-    values = np.concatenate((kid_v, parents_v), axis=1)
-    data = np.array([vars, values])
-    data = data[:,data[0].argsort()] # sorted by variables
-    vars = tuple(data[0])
-    values = tuple(data[1:])
-    return vars, values
-
-def num2vec(num, bins):
-    vec = []
-    for b in bins:
-        v = num % b
-        num = num // b
-        vec.append(v)
-    return vec
 
 class CPT_BS:
     '''
@@ -71,13 +49,13 @@ class CPT_BS:
 
     def _lps(self):
         for pt in self._pts:
-            pt.lps()
+            self._pts[pt].lps()
 
     def _discretize(self, vars, values):
         ind = list(vars)
-        mins = self._mins(ind)
-        intv = self._intv(ind)
-        bins = self._bins(ind)
+        mins = self._mins[ind]
+        intv = self._intv[ind]
+        bins = self._bins[ind]
         d_values = discretize(values, mins, intv, bins)
         return d_values
         
@@ -93,14 +71,15 @@ class CPT_BS:
         vars = tuple(sorted(list(kid) + list(parents)))
         jvl = [parents, vars]
         for jv in jvl: # jv must be a tuple and in an ascending order
-            if jv in self._cache_join:
+            if jv in self._cache_join or jv==():
                 continue
             ind = list(jv)
-            bins = self._bins(ind)
+            bins = self._bins[ind]
             if jv not in self._pts:
                 self._pts[jv] = PT(bins)
-            for data in self._batch:
-                d_data = self._discretize(jv, data)
+            _batch = self._batch[:, ind]
+            for data in _batch:
+                d_data = tuple(data)
                 self._pts[jv].count(d_data)
             self._cache_join.add(jv)    # cache
         self._lps()
@@ -112,6 +91,13 @@ class CPT_BS:
         return self._pts[vars]
 
     def set_batch(self, batch):
+        '''
+        Args:
+            batch: a 2d np.array
+        '''
+        _, n = batch.shape  # n is the number of all variables
+        vars = [i for i in range(n)]
+        batch = self._discretize(vars, batch)
         self._batch = batch
         self._cache_fml.clear()
         self._cache_join.clear()
@@ -123,7 +109,6 @@ class CPT_BS:
                              = integrate{P(kid,parents)log(1/P(kid|parents))}
                              = integrate{P(kid,parents)log(P(parents)/P(kid,parents))}
         '''
-        assert kid in self._pts and (parents in self._pts or parents==())
         fml = tuple(list(parents) + list(kid))
         if fml in self._cache_cost:
             return self._cache_cost[fml]
@@ -131,7 +116,7 @@ class CPT_BS:
         vars = tuple(sorted(list(kid) + list(parents)))
         index = vars.index(kid[0])
         assert vars in self._pts
-        bins = self._bins[vars]
+        bins = self._bins[list(vars)]
         n = bins.prod()
         cost = 0
         for i in range(n):
@@ -163,10 +148,10 @@ class CPT_BS:
         vars, values = sort_v(kid, parents, kid_v, parents_v)
         if vars not in self._pts or (parents not in self._pts and parents!=()):
             return None
+        values = self._discretize(vars, values)
+        parents_v = None if parents==() else self._discretize(parents, parents_v)
         cost = []
         for _values, _parents_v in zip(values, parents_v):
-            _values = self._discretize(vars, values)
-            _parents_v = self._discretize(parents, _parents_v)
             Pj = self._pts[vars].p(_values)
             Pp = self._pts[parents].p(_parents_v) if parents!=() else 1
             _cost = -log(Pj/Pp)
@@ -288,7 +273,7 @@ class Gauss_BS:
         self._batch_process(kid, parents)
         assert fml in self._GGM_cache
         beta, var, _ = self._GGM_cache[fml]
-        cost = Guassian_cost(self._batch, fml, beta, var, norm=True)
+        cost = Guassian_cost(self._batch, fml, beta, var, norm=False)
         self._cost_cache[fml] = cost    # cache
         return cost
 

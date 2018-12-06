@@ -57,7 +57,6 @@ for t in range(times):
         bg_time = time.time()
         for i in range(epoch):
             inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
-            inputs = inputs.view(-1,5,step_len)
             labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1).long()
             optimizer.zero_grad()
             outputs = diagnoser(inputs)

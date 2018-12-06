@@ -5,6 +5,7 @@ import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
+import torch
 import numpy as np
 import matplotlib.pyplot as pl
 from graphviz import Digraph
@@ -156,3 +157,107 @@ def und2od(edges, order):
         else:
             graph[index1, index0] = 1
     return graph
+
+def dis_para(min_max, bins, fault_num=None):
+    '''
+    return discretization parameters
+    Args:
+        min_max: a 2d np.array
+        e.g.:
+            np.array([[1,2],
+                      [3,4],
+                      [5,6]])
+        bins:
+            A list or 1d np.array. The discrete number for each variable
+        fault_num:
+            RT
+    '''
+    assert min(bins)>0
+    mins = min_max[:, 0]
+    maxs = min_max[:, 1]
+    intervals = []
+    for mi, ma, b in zip(mins, maxs, bins):
+        intv = (ma - mi)/b
+        intervals.append(intv)
+    intervals = np.array(intervals)
+    bins = np.array(bins)
+    if fault_num is not None:
+        mins = np.pad(mins,(1,0),'constant',constant_values = 0)
+        intervals = np.pad(intervals,(1,0),'constant',constant_values = 1)
+        bins = np.pad(bins,(1,0),'constant',constant_values = fault_num+1)
+    return mins, intervals, bins
+
+def discretize(continuous, mins, intervals, bins):
+    '''
+    Args:
+        continuous: a 2d np.array. batch × number
+        mins: a 1d np.array. number
+        intervals: a 1d np.array. number
+        bins: a 1d np.array. number
+    Return:
+        A 2d discretized np.array
+    '''
+    maxs = mins + intervals*(bins-0.1) # magic number 0.1
+    data = np.fmax(continuous, mins)   # set the number less than mins as mins
+    data = np.fmin(data, maxs)         # set the number greater than maxs as a number a little less than maxs
+    data = (data - mins)/intervals
+    data = data.astype(int)
+    return data
+
+def sort_v(kid, parents, kid_v, parents_v):
+    '''
+    sort varibles and values
+    Args:
+        kid: unit tuple, (kid_id,)
+        parents:tuple, (p0_id,p1_id,...)
+        kid_v: a 2d np.array
+        parents_v: a 2d np.array
+    Returns:
+        vars: a tuple
+        values: a 2d np.array
+    '''
+    vars = list(kid) + list(parents)
+    values = np.concatenate((kid_v, parents_v), axis=1)
+    data = np.array([vars, values])
+    data = data[:,data[0].argsort()] # sorted by variables
+    vars = tuple(data[0])
+    values = data[1:]
+    return vars, values
+
+def num2vec(num, bins):
+    '''
+    Args:
+        num: the in number
+        bins: the number of each index
+    Returns:
+        a list
+    '''
+    vec = []
+    for b in bins:
+        v = num % b
+        num = num // b
+        vec.append(v)
+    return vec
+
+def cat_label_input(labels, inputs, mean=False):
+    '''
+    Args:
+        labels: a 1d torch tensor.
+        inputs: a 3d torch tensor.
+    Returns:
+        a 2d torch np.array
+    '''
+    # inputs: batch × nodes × time_step
+    batch, nodes, step_size = inputs.size()
+    if not mean:
+        inputs = inputs.permute([0, 2, 1])
+        inputs = inputs.contiguous().view(-1, nodes)
+        labels = labels.view(batch, 1)
+        labels = labels.expand(batch, step_size)
+        labels = labels.contiguous().view(-1, 1)
+    else:
+        inputs = torch.mean(inputs, 2)
+        labels = labels.view(batch, 1)
+    data = torch.cat((labels, inputs), dim=1)
+    data = data.detach().numpy()
+    return data

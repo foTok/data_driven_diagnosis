@@ -11,7 +11,8 @@ from math import log
 from graph_model.cpt import PT
 from graph_model.batch_statistic import sort_v
 from graph_model.utilities import Guassian_cost
-from graph_model.cpt import discretize
+from graph_model.utilities import discretize
+from graphviz import Digraph
 
 class Bayesian_adj:
     '''
@@ -26,112 +27,92 @@ class Bayesian_adj:
         '''
         self._fault = fault
         self._obs = obs
-        self._f = len(fault)
-        self._n = len(obs)
-        self._v = self._f+self._n
+        self._n = len(obs)  + 1   # node number
         self._adj = None
 
+    def adj(self):
+        _adj = None
+        if self._adj is not None:
+            _adj = self._adj.copy()
+        return _adj
+
     def len_var(self):
-        return self._v
+        return self._n
 
     def empty_init(self):
-        self._adj = np.array([[0]*self._v]*self._v)
+        self._adj = np.array([[0]*self._n]*self._n)
 
     def naive_init(self):
-        self._adj = np.array([[0]*self._v]*self._v)
-        for i in range(self._f):
-            for j in range(self._f, self._v):
-                self._adj[i, j] = 1
+        self._adj = np.array([[0]*self._n]*self._n)
+        for i in range(1, self._n):
+            self._adj[0, i] = 1
 
     def set_adj(self, adj):
         self._adj = adj
 
     def available(self, i, j):
-        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+        # only edges between observed variables
+        if not (1<=i<self._n and 1<=j<self._n and i!=j):
             return False
         return True
 
     def add_edge(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+        if not (1<=i<self._n and 1<=j<self._n and i!=j):
             return False
-        if i<self._f: # fault->obs
-            if self._adj[i,j]==0:
-                self._adj[i,j]=1
-                return True
-        else: # obs->obs
-            if self._adj[i,j]==0 and self._adj[j,i]==0 and not self.has_path(j, i):
-                self._adj[i,j]=1
-                return True
+        if self._adj[i,j]==0 and self._adj[j,i]==0 and not self.has_path(j, i):
+            self._adj[i,j]=1
+            return True
         return False
 
     def add_perm(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+        if not (1<=i<self._n and 1<=j<self._n and i!=j):
             return False
-        if i<self._f: # fault->obs
-            if self._adj[i,j]==0:
-                return True
-        else: # obs->obs
-            if self._adj[i,j]==0 and self._adj[j,i]==0 and not self.has_path(j, i):
-                return True
+        if self._adj[i,j]==0 and self._adj[j,i]==0 and not self.has_path(j, i):
+            return True
         return False
 
     def remove_edge(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+        if not (1<=i<self._n and 1<=j<self._n and i!=j):
             return False
-        if i<self._f: # fault->obs
-            if self._adj[i,j]==1:
-                self._adj[i,j]=0
-                return True
-        else: # obs->obs
-            if self._adj[i,j]==1:
-                self._adj[i,j]=0
-                return True
+        if self._adj[i,j]==1:
+            self._adj[i,j]=0
+            return True
         return False
 
     def remove_perm(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+        if not (1<=i<self._n and 1<=j<self._n and i!=j):
             return False
-        if i<self._f: # fault->obs
-            if self._adj[i,j]==1:
-                return True
-        else: # obs->obs
-            if self._adj[i,j]==1:
-                return True
+        if self._adj[i,j]==1:
+            return True
         return False
 
     def reverse_edge(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+        if not (1<=i<self._n and 1<=j<self._n and i!=j):
             return False
-        if i<self._f:
-            return False
-        else:
-            if self._adj[i,j]==1 and self._adj[j,i]==0:
-                self._adj[i,j]==0
-                if self.has_path(i,j):
-                    self._adj[i,j]=1
-                    return False
-                else:
-                    self._adj[j,i]==1
-                    return True
+        if self._adj[i,j]==1 and self._adj[j,i]==0:
+            self._adj[i,j]==0
+            if self.has_path(i,j):
+                self._adj[i,j]=1
+                return False
+            else:
+                self._adj[j,i]==1
+                return True
         return False
 
-    def reverse_prem(self, i, j):
+    def reverse_perm(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (0<=i<self._v and self._f<=j<self._v and i!=j):
+        if not (1<=i<self._n and 1<=j<self._n and i!=j):
             return False
-        if i<self._f:
-            return False
-        else:
-            if self._adj[i,j]==1 and self._adj[j,i]==0:
-                if self.has_path(i,j):
-                    return False
-                else:
-                    return True
+        if self._adj[i,j]==1 and self._adj[j,i]==0:
+            if self.has_path(i,j):
+                return False
+            else:
+                return True
         return False
 
     def clone(self):
@@ -167,7 +148,7 @@ class Bayesian_adj:
         return self
 
     def __next__(self):
-        if self._i == self._v:
+        if self._i == self._n:
             raise StopIteration
         parents = list(self._adj[:, self._i])
         parents = [i for i, v in enumerate(parents) if v==1]
@@ -231,10 +212,17 @@ class CPT:
         self._pts = {}
 
     def _discretize(self, vars, values):
+        '''
+        Args:
+            vars: a 1d tuple or list of int
+            values: a 1d or 2d np.array
+        Returns:
+            a 1d or 2d np.array
+        '''
         ind = list(vars)
-        mins = self._mins(ind)
-        intv = self._intv(ind)
-        bins = self._bins(ind)
+        mins = self._mins[ind]
+        intv = self._intv[ind]
+        bins = self._bins[ind]
         d_values = discretize(values, mins, intv, bins)
         return d_values
 
@@ -259,9 +247,9 @@ class CPT:
         if vars not in self._pts or (parents not in self._pts and parents!=()):
             return None
         cost = []
+        values = self._discretize(vars, values)
+        parents_v = None if parents==() else self._discretize(parents, parents_v)
         for _values, _parents_v in zip(values, parents_v):
-            _values = self._discretize(vars, values)
-            _parents_v = self._discretize(parents, _parents_v)
             Pj = self._pts[vars].p(_values)
             Pp = self._pts[parents].p(_parents_v) if parents!=() else 1
             _cost = -log(Pj/Pp)
@@ -275,12 +263,18 @@ class BN:
     Bayesian Netowork
     '''
     def __init__(self, fault, obs):
-        self.adj = Bayesian_adj(fault, obs)
-        self.para = None
-        self.type = None
+        self.fault  = fault
+        self.obs    = obs
+        self.adj    = Bayesian_adj(fault, obs)
+        self.para   = None
+        self.type   = None
+        self.n  = len(obs)+1
 
     def set_adj(self, adj):
-        self.adj.set_adj(adj)
+        if isinstance(adj, np.ndarray):
+            self.adj.set_adj(adj)
+        else:
+            self.adj = adj
 
     def set_type(self, _type, mins=None, intervals=None, bins=None):
         if _type == 'CPT':
@@ -324,3 +318,26 @@ class BN:
         s = pickle.dumps(BN)
         with open(file, "wb") as f:
             f.write(s)
+
+    def graphviz(self, file, view=True):
+        '''
+        Visulize the BN using graphviz.
+        Args:
+            file: file name
+        '''
+        comment = '{} BN'.format(self.type)
+        dot = Digraph(comment=comment)
+        # for fault
+        dot.node('node0', 'fault', fillcolor='red', style='filled')
+        # for obs
+        id = 1
+        for o in self.obs:
+            dot.node('node{}'.format(id), o, fillcolor='green', style='filled')
+            id += 1
+        # edges
+        adj = self.adj.adj()
+        for i in range(self.n):
+            for j in range(self.n):
+                if adj[i, j] == 1:
+                    dot.edge('node{}'.format(i), 'node{}'.format(j))
+        dot.render(file, view=view)  
