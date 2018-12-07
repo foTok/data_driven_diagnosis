@@ -278,6 +278,7 @@ class BN:
 
     def set_type(self, _type, mins=None, intervals=None, bins=None):
         if _type == 'CPT':
+            assert mins is not None and intervals is not None and bins is not None
             self.mins   = np.array(mins)
             self.intervals  = np.array(intervals)
             self.bins   = np.array(bins)

@@ -43,8 +43,9 @@ class PT:
     def p(self, vec):
         '''
         Args:
-            vec: a tuple of ints.
+            vec: a tuple or list of ints.
         '''
+        vec = vec if isinstance(vec, tuple) else tuple(vec)
         if vec not in self._pt:
             return self._lps
         else:

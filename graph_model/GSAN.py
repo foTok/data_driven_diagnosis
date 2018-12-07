@@ -1,5 +1,5 @@
 '''
-learning Bayesian model
+Greedy Search Augmented Naive Bayesian Network
 '''
 import os
 import sys
@@ -15,7 +15,7 @@ from math import exp
 
 class GSAN:
     '''
-    Greedy search improved naive Beyesian Network
+    Greedy search augmented naive Beyesian Network
     '''
     def __init__(self, fault, obs):
         self.queue  = {}
@@ -159,7 +159,7 @@ class GSAN:
         '''
         best_adj, _ = self.best_candidate()
         bBN = BN(self.fault, self.obs)
-        bBN.set_type(self.type)
+        bBN.set_type(self.type, self.mins, self.intervals, self.bins)
         bBN.set_adj(best_adj.adj())
         for kid, parents in best_adj:
             if self.type == 'CPT':

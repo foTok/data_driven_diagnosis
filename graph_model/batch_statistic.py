@@ -6,6 +6,7 @@ import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
 import numpy as np
+from scipy.stats import chi2
 from math import log
 from math import exp
 from graph_model.cpt import PT
@@ -43,9 +44,9 @@ class CPT_BS:
         self._pts   = {}
         self._batch = None
         # Cache
-        self._cache_fml = set()     # for fml
-        self._cache_join    = set() # for vars
-        self._cache_cost    = {}    # for fml cost
+        self._cache_join    = set() # for vars, used in both cost and distance
+        # Cache for computing cost or distance
+        self._cache_value   = {}  
 
     def _lps(self):
         for pt in self._pts:
@@ -58,32 +59,108 @@ class CPT_BS:
         bins = self._bins[ind]
         d_values = discretize(values, mins, intv, bins)
         return d_values
-        
-    def _batch_process(self, kid, parents):
+
+    def _pick_value(self, vars, values, subvars):
+        '''
+        Pick out values of subvars
+        Args:
+            vars:   all variables
+            values: all values
+            subvars:    the subvars whose values will be picked out
+        Returns:
+            a list containing all the picked values.
+        '''
+        index = [vars.index(i) for i in subvars]
+        subvalues = [values[i] for i in index]
+        return subvalues
+
+    def _join_statistic(self, jv):
+        if jv in self._cache_join or jv==():
+            return
+        ind = list(jv)
+        bins = self._bins[ind]
+        if jv not in self._pts:
+            self._pts[jv] = PT(bins)
+        _batch = self._batch[:, ind]
+        for data in _batch:
+            d_data = tuple(data)
+            self._pts[jv].count(d_data)
+        self._cache_join.add(jv)    # cache
+
+    def _batch_process(self, kid, parents, y=None):
         '''
         Args:
-            kid: the tuple of kid variable.
-            parents: the tuple of parents variables.
+            if y is None:
+                parents ->  kid
+                kid: the tuple of kid variable.
+                parents: the tuple of parents variables.
+            if y is not None:
+                kid(x)  <-  parents(Z)  ->  y
+                kid: x in the distance computation
+                parents: Z in the distance computation
+                y: y in the distance computation
         '''
-        fml = tuple(list(parents) + list(kid))
-        if fml in self._cache_fml:
+        key = tuple(list(parents) + list(kid)) if y is None else tuple(list(kid)+list(parents)+list(y))
+        if key in self._cache_value:
             return
-        vars = tuple(sorted(list(kid) + list(parents)))
-        jvl = [parents, vars]
+        if y is None:
+            vars = tuple(sorted(list(kid) + list(parents)))
+            jvl = [parents, vars]
+        else:
+            xyZ = tuple(sorted(list(kid) + list(parents) + list(y)))
+            xZ  = tuple(sorted(list(kid) + list(parents)))
+            yZ  = tuple(sorted(list(parents) + list(y)))
+            jvl = [parents, xyZ, xZ, yZ]
         for jv in jvl: # jv must be a tuple and in an ascending order
-            if jv in self._cache_join or jv==():
-                continue
-            ind = list(jv)
-            bins = self._bins[ind]
-            if jv not in self._pts:
-                self._pts[jv] = PT(bins)
-            _batch = self._batch[:, ind]
-            for data in _batch:
-                d_data = tuple(data)
-                self._pts[jv].count(d_data)
-            self._cache_join.add(jv)    # cache
+            self._join_statistic(jv)
         self._lps()
-        self._cache_fml.add(fml)        # cache
+
+    def _d_chi_square(self, x, y, Z):
+        '''
+        The distance that obeys Chi square distribution.
+        Args:
+            x: variable x, an unit tuple (x,)
+            y: variable x, an unit tuple (y,)
+            Z: their possible parents, a tuple (z0, z1, ...), in ascending order.
+        Returns:
+            1. The distance defined by Koller.
+                M×Sigma{[P(Z)×P(x,y,Z)-P(x,Z)×P(y,Z)]**2/[P(Z)×P(x,Z)×P(y,Z)]}
+                M is the length of batch
+                Obeys:
+                    Chi_square(||x,y,Z||-1)
+            2. ||x,y,Z||-1
+        '''
+        key = tuple(list(x)+list(Z)+list(y))
+        if key in self._cache_value:
+            return self._cache_value[key]
+        self._batch_process(x, Z, y)
+        xyZ = tuple(sorted(list(x) + list(Z) + list(y)))
+        xZ  = tuple(sorted(list(x) + list(Z)))
+        yZ  = tuple(sorted(list(Z) + list(y)))
+        bins = self._bins[list(xyZ)]
+        n = bins.prod()
+        dis = 0
+        for i in range(n):
+            values  = num2vec(i, bins)
+            # P(Z)
+            if Z != ():
+                Z_v = self._pick_value(xyZ, values, Z)
+                PZ  = self._pts[Z].p(Z_v)
+            else:
+                PZ = 1
+            # P(x,Z)
+            xZ_v    = self._pick_value(xyZ, values, xZ)
+            PxZ = self._pts[xZ].p(xZ_v)
+            # P(y,Z)
+            yZ_v    = self._pick_value(xyZ, values, yZ)
+            PyZ = self._pts[xZ].p(yZ_v)
+            # P(x,y,Z)
+            PxyZ = self._pts[xyZ].p(values)
+            # dis
+            dis_i = (PZ*PxyZ-PxZ*PyZ)**2/(PZ*PxZ*PyZ) # due to Laplace smooth, we don't have to add a small number
+            dis += dis_i
+        dis *= len(self._batch)
+        return dis, n-1
 
     def para(self, vars):
         if vars not in self._pts:
@@ -99,19 +176,21 @@ class CPT_BS:
         vars = [i for i in range(n)]
         batch = self._discretize(vars, batch)
         self._batch = batch
-        self._cache_fml.clear()
         self._cache_join.clear()
-        self._cache_cost.clear()
+        self._cache_value.clear()
 
     def fml_cost(self, kid, parents):
         '''
+        Args:
+            kid: an unit tuple
+            parents: a tuple
             cost(kid|parents)=H(kid|parengs)
                              = integrate{P(kid,parents)log(1/P(kid|parents))}
                              = integrate{P(kid,parents)log(P(parents)/P(kid,parents))}
         '''
         fml = tuple(list(parents) + list(kid))
-        if fml in self._cache_cost:
-            return self._cache_cost[fml]
+        if fml in self._cache_value:
+            return self._cache_value[fml]
         self._batch_process(kid, parents)
         vars = tuple(sorted(list(kid) + list(parents)))
         index = vars.index(kid[0])
@@ -121,17 +200,29 @@ class CPT_BS:
         cost = 0
         for i in range(n):
             vec = num2vec(i, bins)
-            vars_v = tuple(vec)
-            Pj = self._pts[vars].p(vars_v)
+            Pj = self._pts[vars].p(vec)
             if parents != ():
                 vecp = vec[:index] + vec[index+1:]
-                par_v = tuple(vecp)
-                Pp = self._pts[parents].p(par_v)
+                Pp = self._pts[parents].p(vecp)
             else:
                 Pp = 1
             cost += Pj*log(Pp/Pj)
-        self._cache_cost[fml] = cost
+        self._cache_value[fml] = cost
         return cost
+
+    def independent(self, x, y, Z, alpha=0.95):
+        '''
+        Test if x and y are independent given Z.
+        Args:
+            x, y: unit tuples
+            Z: tuple
+            alpha: confidence, 0.95 by default
+        Returns:
+            if independent {True, False}
+        '''
+        chi_statistic, df = self._d_chi_square(x, y, Z)
+        threshold = chi2.ppf(alpha, df)
+        return chi_statistic <= threshold
 
     def nLogPc(self, kid, parents, kid_v, parents_v):
         '''
