@@ -58,7 +58,7 @@ class C2AN:
                 The neighbors of i or j
             '''
             nb = set()
-            for i in range(1, len(adj)):
+            for i in range(len(adj)):
                 if (adj[i, xi] == 1 or adj[i, xj] == 1) and \
                    (i != xi and i != xj):
                     nb.add(i)
@@ -132,7 +132,7 @@ class C2AN:
             onb = self._obs_undirected_nb(xj, S)
             for xi in onb:
                 for xk in onb:
-                    if xi != xk and S[xi,xk]==0 and xj not in Uij[(xi, xk)]: # S is undireced graph (except fault node)
+                    if xi < xk and S[xi,xk]==0 and xj not in Uij[(xi, xk)]: # S is undireced graph (except fault node)
                         # Add the orientations Xi → Xj and Xj ← Xk to K
                         self.adj[xj, xi] = 0
                         self.adj[xj, xk] = 0
@@ -252,11 +252,11 @@ class C2AN:
         self.statistic  = CPT_BS(self.mins, self.intervals, self.bins)
         self.statistic.set_batch(batch)
 
-    def Build_adj(self, d=2):
+    def Build_adj(self, d=3):
         '''
         Build adj
         Args:
-            d: an int, boundness. 2 by default.
+            d: an int, boundness. (2+1(fault node))=3 by default.
         '''
         self._build_PDAG(d)
         # Orienting

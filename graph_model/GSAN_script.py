@@ -28,10 +28,10 @@ logfile = 'GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
-train_id = 1
+train_id = 0
 times = 5
 data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
-prefix = 'gsin'
+prefix = 'GSAN'
 cpd = ['CPT', 'GAU']
 fault = ["tma", "pseudo_rate", "carrier_rate", "carrier_leak", "amplify", "tmb"]
 obs = ['m', 'p', 'c', 's0', 's1']
@@ -42,44 +42,53 @@ list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
-bins    = [5]*len(obs)
+dis = [2, 4, 8, 16]
+
 mm  = mana.min_max()
-mins, intervals, bins = dis_para(mm, bins, len(fault))
 
 for t in range(times):
     model_path = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
-    if not os.path.isdir(model_path):
-        os.makedirs(model_path)
-    for _type in cpd:
-        model_name = prefix + '{}'.format(_type)
-        fig_name = prefix + 'fig{}.gv'.format(_type)
+    for d in dis:
+        para_name  = prefix + 'para, bin={}'.format(d)
+        if not os.path.isdir(model_path):
+            os.makedirs(model_path)
+        bins    = [d]*len(obs)
+        mins, intervals, bins = dis_para(mm, bins, len(fault))
+        for _type in cpd:
+            model_name = prefix + ', d={}, type={}'.format(d, _type)
+            fig_name = prefix + 'fig, d={}, type={}.gv'.format(d, _type)
 
-        learner = GSAN(fault, obs)
-        learner.set_type(_type, mins, intervals, bins)
-        learner.init_queue()
-        #train
-        epoch = 100
-        batch = 400
-        train_loss = []
-        running_loss = 0.0
+            learner = GSAN(fault, obs)
+            learner.set_type(_type, mins, intervals, bins)
+            learner.init_queue()
+            #train
+            epoch = 100
+            batch = 400
+            train_loss = []
+            running_loss = 0.0
 
-        bg_time = time.time()
-        for i in range(epoch):
-            inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
-            labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1)
-            data = cat_label_input(labels, inputs)
+            bg_time = time.time()
+            for i in range(epoch):
+                inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
+                labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1)
+                data = cat_label_input(labels, inputs)
 
-            msg = learner.step(data)
+                msg = learner.step(data)
+                logging.info(msg)
+                print(msg)
+
+            BN = learner.best_BN()
+            ed_time = time.time()
+            msg = '{}, train time={}'.format(para_name, ed_time-bg_time)
             logging.info(msg)
             print(msg)
 
-        BN = learner.best_BN()
-        BN.save(model_path+model_name)
-        msg = 'save {} to {}'.format(model_name, model_path)
-        logging.info(msg)
-        print(msg)
-        BN.graphviz(model_path+fig_name, view=False)
-        msg = 'save {} to {}'.format(fig_name, model_path)
-        logging.info(msg)
-        print(msg)
+            BN.save(model_path+model_name)
+            msg = 'save {} to {}'.format(model_name, model_path)
+            logging.info(msg)
+            print(msg)
+            BN.graphviz(model_path+fig_name, view=False)
+            msg = 'save {} to {}'.format(fig_name, model_path)
+            logging.info(msg)
+            print(msg)
 print('DONE!')

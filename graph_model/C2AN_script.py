@@ -28,10 +28,10 @@ logfile = 'C2AN_Training_' + time.asctime( time.localtime(time.time())).replace(
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
-train_id = 0
+train_id = 1
 times = 5
 data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
-prefix = 'gsin'
+prefix = 'C2AN'
 fault = ["tma", "pseudo_rate", "carrier_rate", "carrier_leak", "amplify", "tmb"]
 obs = ['m', 'p', 'c', 's0', 's1']
 #prepare data
@@ -41,33 +41,44 @@ list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
-bins    = [2]*len(obs)
+dis = [2, 4, 8, 16]
 mm  = mana.min_max()
-mins, intervals, bins = dis_para(mm, bins, len(fault))
 batch = 2000
 for t in range(times):
     model_path = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
-    if not os.path.isdir(model_path):
-        os.makedirs(model_path)
+    for d in dis:
+        para_name  = prefix + 'para, bin={}'.format(d)
+        if not os.path.isdir(model_path):
+            os.makedirs(model_path)
 
-    model_name = prefix + 'CPT'
-    fig_name = prefix + 'figCPT.gv'
+        model_name = prefix + ', d={}'.format(d)
+        fig_name = prefix + 'fig, d={}.gv'.format(d)
 
-    inputs, labels, _, _ = mana.random_batch(batch, normal=1.0, single_fault=10, two_fault=0)
-    labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1)
-    data = cat_label_input(labels, inputs)
+        bins    = [d]*len(obs)
+        mm  = mana.min_max()
+        mins, intervals, bins = dis_para(mm, bins, len(fault))
 
-    learner = C2AN(fault, obs)
-    learner.set_batch(data, mins, intervals, bins)
-    learner.Build_adj()
-    BN = learner.Build_BN()
+        inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
+        labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1)
+        data = cat_label_input(labels, inputs)
 
-    BN.save(model_path+model_name)
-    msg = 'save {} to {}'.format(model_name, model_path)
-    logging.info(msg)
-    print(msg)
-    BN.graphviz(model_path+fig_name, view=False)
-    msg = 'save {} to {}'.format(fig_name, model_path)
-    logging.info(msg)
-    print(msg)
+        learner = C2AN(fault, obs)
+        learner.set_batch(data, mins, intervals, bins)
+
+        bg_time = time.time()
+        learner.Build_adj()
+        ed_time = time.time()
+        msg = '{}, train time={}'.format(para_name, ed_time-bg_time)
+        logging.info(msg)
+        print(msg)
+
+        BN = learner.Build_BN()
+        BN.save(model_path+model_name)
+        msg = 'save {} to {}'.format(model_name, model_path)
+        logging.info(msg)
+        print(msg)
+        BN.graphviz(model_path+fig_name, view=False)
+        msg = 'save {} to {}'.format(fig_name, model_path)
+        logging.info(msg)
+        print(msg)
 print('DONE!')
