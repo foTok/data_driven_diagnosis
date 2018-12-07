@@ -43,15 +43,19 @@ for file in list_files:
 
 dis = [2, 4, 8, 16]
 mm  = mana.min_max()
-batch = 2000
+batch = 20000
+
+msg = 'Log of Training C2AN'
+logging.info(msg)
+print(msg)
+
 for t in range(times):
     model_path = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
-    for d in dis:
-        para_name  = prefix + 'para, bin={}'.format(d)
-        if not os.path.isdir(model_path):
+    if not os.path.isdir(model_path):
             os.makedirs(model_path)
-
-        model_name = prefix + ', d={}'.format(d)
+    for d in dis:
+        para_name  = prefix + 'para, d={}'.format(d)
+        model_name = prefix + 'model, d={}.bn'.format(d)
         fig_name = prefix + 'fig, d={}.gv'.format(d)
 
         bins    = [d]*len(obs)
