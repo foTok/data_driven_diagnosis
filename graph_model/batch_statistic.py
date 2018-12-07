@@ -160,6 +160,7 @@ class CPT_BS:
             dis_i = (PZ*PxyZ-PxZ*PyZ)**2/(PZ*PxZ*PyZ) # due to Laplace smooth, we don't have to add a small number
             dis += dis_i
         dis *= len(self._batch)
+        self._cache_value[key] = dis
         return dis, n-1
 
     def para(self, vars):
