@@ -153,7 +153,7 @@ class CPT_BS:
             PxZ = self._pts[xZ].p(xZ_v)
             # P(y,Z)
             yZ_v    = self._pick_value(xyZ, values, yZ)
-            PyZ = self._pts[xZ].p(yZ_v)
+            PyZ = self._pts[yZ].p(yZ_v)
             # P(x,y,Z)
             PxyZ = self._pts[xyZ].p(values)
             # dis

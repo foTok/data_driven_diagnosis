@@ -270,7 +270,7 @@ class C2AN:
         Build the BN
         '''
         bBN = BN(self.fault, self.obs)
-        bBN.set_type('CPT')
+        bBN.set_type('CPT', self.mins, self.intervals, self.bins)
         adj = Bayesian_adj(self.fault, self.obs)
         adj.set_adj(self.adj)
         bBN.set_adj(adj)
