@@ -8,6 +8,8 @@ sys.path.insert(0,parentdir)
 import numpy as np
 from graph_model.BN import BN
 from graph_model.BN import Bayesian_adj
+from graph_model.DBN import DBN
+from graph_model.DBN import DBN_adj
 from graph_model.batch_statistic import CPT_BS
 from graph_model.batch_statistic import Gauss_BS
 from math import log
@@ -20,6 +22,7 @@ class GSAN:
     def __init__(self, fault, obs):
         self.queue  = {}
         self.type   = None
+        self.ntype  = None
         self.statistic  = None
         self.mins   = None
         self.intervals  = None
@@ -27,7 +30,7 @@ class GSAN:
         self.delay  = 0
         self.fault  = fault
         self.obs    = obs  
-        self.n  = 1 + len(obs)
+        self.n  = None
         self.vars_r_cost_cache  = {}
         self.graph_r_cost_cache = {}
 
@@ -35,7 +38,12 @@ class GSAN:
         '''
         init the search queue
         '''
-        adj = Bayesian_adj(self.fault, self.obs)
+        if self.ntype == 'S':
+            adj = Bayesian_adj(self.fault, self.obs)
+        elif self.ntype == 'D':
+            adj = DBN_adj(self.fault, self.obs)
+        else:
+            raise RuntimeError('Unknown type.')
         adj.naive_init()
         cost = float('inf')
         self.queue[adj] = cost
@@ -48,8 +56,21 @@ class GSAN:
         graph, cost = min(queue.items(), key=lambda x:x[1])
         return graph, cost
 
+    def set_ntype(self, _type):
+        '''
+        '''
+        if _type == 'S':# Static BN
+            self.n  = len(self.obs) + 1
+        elif _type == 'D': # Dynamic BN
+            self.n  = 2*len(self.obs) + 1
+        else:
+            raise RuntimeError('unknown parameter type')
+        self.ntype = _type
+
     def set_type(self, _type, mins=None, intervals=None, bins=None):
-        
+        '''
+        Set the parameter type.
+        '''
         if _type == 'CPT':
             assert mins is not None and intervals is not None and bins is not None
             self.mins   = np.array(mins)
@@ -158,7 +179,7 @@ class GSAN:
         best BN
         '''
         best_adj, _ = self.best_candidate()
-        bBN = BN(self.fault, self.obs)
+        bBN = BN(self.fault, self.obs) if self.ntype == 'S' else DBN(self.fault, self.obs)
         bBN.set_type(self.type, self.mins, self.intervals, self.bins)
         bBN.set_adj(best_adj.adj())
         for kid, parents in best_adj:

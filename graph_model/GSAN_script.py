@@ -35,6 +35,7 @@ prefix = 'GSAN'
 cpd = ['CPT', 'GAU']
 fault = ["tma", "pseudo_rate", "carrier_rate", "carrier_leak", "amplify", "tmb"]
 obs = ['m', 'p', 'c', 's0', 's1']
+ntypes = ['S', 'D']
 #prepare data
 mana = BpskDataTank()
 step_len=128
@@ -42,7 +43,7 @@ list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
-dis = [2, 4, 8, 16]
+dis = [2, 4, 8, 16, 32]
 mm  = mana.min_max()
 
 msg = 'Log of Training GSAN'
@@ -50,53 +51,55 @@ logging.info(msg)
 print(msg)
 
 for t in range(times):
-    model_path = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
-    if not os.path.isdir(model_path):
-        os.makedirs(model_path)
-    
-    for _type in cpd:
-        if _type == 'CPT':
-            para = dis
-        else:
-            para = [0]
-        for d in para:
-            bins    = [d]*len(obs)
-            mins, intervals, bins = dis_para(mm, bins, len(fault)) if d!=0 else [None, None, None]
-            para_name  = prefix + 'para, d={}, type={}'.format(d, _type)
-            model_name = prefix + 'model, d={}, type={}.bn'.format(d, _type)
-            fig_name = prefix + 'fig, d={}, type={}.gv'.format(d, _type)
+    for ntype in ntypes:
+        model_path = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+        if not os.path.isdir(model_path):
+            os.makedirs(model_path)
+        
+        for _type in cpd:
+            if _type == 'CPT':
+                para = dis
+            else:
+                para = [0]
+            for d in para:
+                bins    = [d]*len(obs)
+                mins, intervals, bins = dis_para(mm, bins, len(fault), ntype=='D') if d!=0 else [None, None, None]
+                para_name  = prefix + 'para, d={}, ptype={}, ntype={}'.format(d, _type, ntype)
+                model_name = prefix + 'model, d={}, ptype={}, ntype={}.bn'.format(d, _type, ntype)
+                fig_name = prefix + 'fig, d={}, ptype={}, ntype={}.gv'.format(d, _type, ntype)
 
-            learner = GSAN(fault, obs)
-            learner.set_type(_type, mins, intervals, bins)
-            learner.init_queue()
-            #train
-            epoch = 50
-            batch = 400
-            train_loss = []
-            running_loss = 0.0
+                learner = GSAN(fault, obs)
+                learner.set_ntype(ntype)
+                learner.set_type(_type, mins, intervals, bins)
+                learner.init_queue()
+                #train
+                epoch = 50
+                batch = 400
+                train_loss = []
+                running_loss = 0.0
 
-            bg_time = time.time()
-            for i in range(epoch):
-                inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
-                labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1)
-                data = cat_label_input(labels, inputs)
+                bg_time = time.time()
+                for i in range(epoch):
+                    inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
+                    labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1)
+                    data = cat_label_input(labels, inputs, ntype=='D')
 
-                msg = learner.step(data)
+                    msg = learner.step(data)
+                    logging.info(msg)
+                    print(msg)
+
+                BN = learner.best_BN()
+                ed_time = time.time()
+                msg = '{}, train time={}'.format(para_name, ed_time-bg_time)
                 logging.info(msg)
                 print(msg)
 
-            BN = learner.best_BN()
-            ed_time = time.time()
-            msg = '{}, train time={}'.format(para_name, ed_time-bg_time)
-            logging.info(msg)
-            print(msg)
-
-            BN.save(model_path+model_name)
-            msg = 'save model {} to {}'.format(model_name, model_path)
-            logging.info(msg)
-            print(msg)
-            BN.graphviz(model_path+fig_name, view=False)
-            msg = 'save figure {} to {}'.format(fig_name, model_path)
-            logging.info(msg)
-            print(msg)
+                BN.save(model_path+model_name)
+                msg = 'save model {} to {}'.format(model_name, model_path)
+                logging.info(msg)
+                print(msg)
+                BN.graphviz(model_path+fig_name, view=False)
+                msg = 'save figure {} to {}'.format(fig_name, model_path)
+                logging.info(msg)
+                print(msg)
 print('DONE!')

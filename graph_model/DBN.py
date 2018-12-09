@@ -1,5 +1,5 @@
 '''
-defines some components used by Bayesian network
+defines some components used by Dynamic Bayesian network
 '''
 import os
 import sys
@@ -9,25 +9,45 @@ import numpy as np
 import pickle
 from math import log
 from graph_model.cpt import PT
+from graph_model.BN import CPT
+from graph_model.BN import Gauss
 from graph_model.batch_statistic import sort_v
 from graph_model.utilities import Guassian_cost
 from graph_model.utilities import discretize
 from graphviz import Digraph
 
-class Bayesian_adj:
+class DBN_adj:
     '''
     store Bayesian structure
     '''
     def __init__(self, fault, obs):
         '''
         The first f variables are the faults and the last n variables are observations.
+                               0    1   |obs| |obs|+1  2|obs| 2|obs|+1=self._n
+                            +------+----------+-----------+
+                            |      |          |           |
+                            |  0   |     0    |     1     |
+                            |      |          |           |
+                            +-----------------------------+
+                            |      |          |           |
+                            |      |          |           |
+                            |  0   |     0    |     ?     |
+                            |      |          |           |
+                            |      |          |           |
+                            +-----------------------------+
+                            |      |          |           |
+                            |      |          |           |
+                            |  0   |     0    |     ?     |
+                            |      |          |           |
+                            |      |          |           |
+                            +------+----------+-----------+
         Args:
             fault: a list or tuple of strings, contains the fault names
             obs: a list or tuple of strings, contains the observation variables
         '''
         self._fault = fault
         self._obs = obs
-        self._n = len(obs)  + 1   # node number
+        self._n = 2*len(obs)  + 1   # node number
         self._adj = None
 
     def adj(self):
@@ -44,7 +64,7 @@ class Bayesian_adj:
 
     def naive_init(self):
         self._adj = np.array([[0]*self._n]*self._n)
-        for i in range(1, self._n):
+        for i in range(len(self._obs)+1, self._n):
             self._adj[0, i] = 1
 
     def set_adj(self, adj):
@@ -52,13 +72,13 @@ class Bayesian_adj:
 
     def available(self, i, j):
         # only edges between observed variables
-        if not (1<=i<self._n and 1<=j<self._n and i!=j):
-            return False
-        return True
+        if 1<=i<self._n and len(self._obs)+1<=j<self._n and i!=j:
+            return True
+        return False
 
     def add_edge(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (1<=i<self._n and 1<=j<self._n and i!=j):
+        if not self.available(i,j):
             return False
         if self._adj[i,j]==0 and self._adj[j,i]==0 and not self.has_path(j, i):
             self._adj[i,j]=1
@@ -67,7 +87,7 @@ class Bayesian_adj:
 
     def add_perm(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (1<=i<self._n and 1<=j<self._n and i!=j):
+        if not self.available(i, j):
             return False
         if self._adj[i,j]==0 and self._adj[j,i]==0 and not self.has_path(j, i):
             return True
@@ -75,16 +95,16 @@ class Bayesian_adj:
 
     def remove_edge(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (1<=i<self._n and 1<=j<self._n and i!=j):
+        if not self.available(i,j):
             return False
-        if self._adj[i,j]==1:
-            self._adj[i,j]=0
+        if self._adj[i,j]==1:       # When adding edges, self.add_edge makes sure
+            self._adj[i,j]=0        # no undirected edge will be added.
             return True
         return False
 
     def remove_perm(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (1<=i<self._n and 1<=j<self._n and i!=j):
+        if not self.available(i,j):
             return False
         if self._adj[i,j]==1:
             return True
@@ -92,7 +112,7 @@ class Bayesian_adj:
 
     def reverse_edge(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (1<=i<self._n and 1<=j<self._n and i!=j):
+        if not self.available(i,j):
             return False
         if self._adj[i,j]==1 and self._adj[j,i]==0:
             self._adj[i,j]==0
@@ -106,7 +126,7 @@ class Bayesian_adj:
 
     def reverse_perm(self, i, j):
         assert isinstance(i, int) and isinstance(j, int)
-        if not (1<=i<self._n and 1<=j<self._n and i!=j):
+        if not self.available(i,j):
             return False
         if self._adj[i,j]==1 and self._adj[j,i]==0:
             if self.has_path(i,j):
@@ -116,7 +136,7 @@ class Bayesian_adj:
         return False
 
     def clone(self):
-        copy = Bayesian_adj(self._fault, self._obs)
+        copy = DBN_adj(self._fault, self._obs)
         copy._adj = self._adj.copy()
         return copy
 
@@ -156,119 +176,17 @@ class Bayesian_adj:
         self._i += 1
         return tuple(kid), tuple(parents)
 
-class Gauss:
+class DBN:
     '''
-    This class is used to store Gaussian parameters for a Bayesian network.
-    Different from the common Gaussian parameters in which the variance is a constance.
-    This class assumes that both the mean value and the variance value for a Gassian distribution
-    are determined by a set of linear real value parameters.
-    '''
-    def __init__(self):
-        #family tank is a set to store parameters.
-        #KEY FML: (parents, kid).
-        #parents are several numbers but kid is just only one number.
-        #For example, (0,1,2,3,6). {0,1,2,3}-->6
-        #VALUE PARA: ((beta, var))
-        #beta is a vector stored in a np.array or np.matrix. When there are n parents, 
-        #there should be (n+1) variable in beta because there is a constant term.
-        #The same for var.
-        self.fml_tank   = {}
-
-    def add_para(self, fml, parameters):
-        '''
-        add parameters into self.fml_tank
-        '''
-        if fml in self.fml_tank:
-            return
-        self.fml_tank[fml] = parameters
-
-    def nLogPc(self, kid, parents, kid_v, parents_v):
-        '''
-        Conditional Probability
-        Args:
-            kid: unit tuple, (kid_id,)
-            parents:tuple, (p0_id,p1_id,...)
-            kid_v: 2d np.array
-            parents_v: 2d np.array
-        Returns:
-            P(kid|parents) = P(parents, kid)/P(parents)
-            or None
-        '''
-        fml = tuple(list(parents) + list(kid))
-        assert fml in self.fml_tank
-        beta, var, _ = self.fml_tank[fml]
-        kid_v = kid_v.reshape(-1)
-        cost = Guassian_cost(kid_v, parents_v, beta, var, norm=True)
-        return cost
-
-class CPT:
-    '''
-    A class to store CPT
-    '''
-    def __init__(self, mins, intervals, bins):
-        self._mins  = np.array(mins)
-        self._intv  = np.array(intervals)
-        self._bins  = np.array(bins)
-        self._pts = {}
-
-    def _discretize(self, vars, values):
-        '''
-        Args:
-            vars: a 1d tuple or list of int
-            values: a 1d or 2d np.array
-        Returns:
-            a 1d or 2d np.array
-        '''
-        ind = list(vars)
-        mins = self._mins[ind]
-        intv = self._intv[ind]
-        bins = self._bins[ind]
-        d_values = discretize(values, mins, intv, bins)
-        return d_values
-
-    def add_para(self, vars, pt):
-        if vars in self._pts:
-            return
-        self._pts[vars] = pt
-
-    def nLogPc(self, kid, parents, kid_v, parents_v):
-        '''
-        Conditional Probability
-        Args:
-            kid: unit tuple, (kid_id,)
-            parents:tuple, (p0_id,p1_id,...)
-            kid_v: 2d np.array
-            parents_v: 2d np.array
-        Returns:
-            P(kid|parents) = P(parents, kid)/P(parents)
-            or None
-        '''
-        vars, values = sort_v(kid, parents, kid_v, parents_v)
-        if vars not in self._pts or (parents not in self._pts and parents!=()):
-            return None
-        cost = []
-        values = self._discretize(vars, values)
-        parents_v = None if parents==() else self._discretize(parents, parents_v)
-        for _values, _parents_v in zip(values, parents_v):
-            Pj = self._pts[vars].p(_values)
-            Pp = self._pts[parents].p(_parents_v) if parents!=() else 1
-            _cost = -log(Pj/Pp)
-            cost.append(_cost)
-        cost = np.mean(cost)
-        return cost
-
-
-class BN:
-    '''
-    Bayesian Netowork
+    Dynamic Bayesian Netowork
     '''
     def __init__(self, fault, obs):
         self.fault  = fault
         self.obs    = obs
-        self.adj    = Bayesian_adj(fault, obs)
+        self.adj    = DBN_adj(fault, obs)
         self.para   = None
         self.type   = None
-        self.n  = len(obs)+1
+        self.n  = 2*len(obs)+1
 
     def set_adj(self, adj):
         if isinstance(adj, np.ndarray):
@@ -293,7 +211,7 @@ class BN:
 
     def logCost(self, fault, obs):
         '''
-        This function returns the *negative log posteriori probability*.
+        This function returns the negative log posteriori probability.
             P(fault|obs) = P(fault, obs)/P(obs)
             P(fault|obs) ~ P(fault, obs)=P(fault)*P(obs|fault)
         Args:
@@ -301,15 +219,7 @@ class BN:
             obs: the values of all monitored variables.
         '''
         logCost = 0
-        f_index = self.adj._fault.index(fault)
-        values = np.array([0]*self.adj._v)
-        values[f_index] = 1
-        for i, o in zip(range(self.adj._f, self.adj._v), obs):
-            values[i] = o
-        for kid, parents in self.adj:
-            kid_v = values[list(kid)]
-            parents_v = values[list(parents)]
-            logCost += self.para.nLogPc(kid, parents, kid_v, parents_v)
+        pass # TODO
         return logCost
 
     def save(self, file):
@@ -319,18 +229,22 @@ class BN:
 
     def graphviz(self, file, view=True):
         '''
-        Visulize the BN using graphviz.
+        Visulize the DBN using graphviz.
         Args:
             file: file name
         '''
-        comment = '{} BN'.format(self.type)
+        comment = '{} DBN'.format(self.type)
         dot = Digraph(comment=comment)
         # for fault
-        dot.node('node0', 'fault', fillcolor='red', style='filled')
-        # for obs
+        dot.node('node0', 'fault(t)', fillcolor='red', style='filled')
+        # for obs in the last time step
         id = 1
-        for o in self.obs:
-            dot.node('node{}'.format(id), o, fillcolor='green', style='filled')
+        for ot in self.obs:
+            dot.node('node{}'.format(id), ot + '(t-1)', fillcolor='yellow', style='filled')
+            id += 1
+        # for obs in the current time step
+        for ot in self.obs:
+            dot.node('node{}'.format(id), ot + '(t)', fillcolor='green', style='filled')
             id += 1
         # edges
         adj = self.adj.adj()
@@ -338,4 +252,4 @@ class BN:
             for j in range(self.n):
                 if adj[i, j] == 1:
                     dot.edge('node{}'.format(i), 'node{}'.format(j))
-        dot.render(file, view=view)  
+        dot.render(file, view=view)

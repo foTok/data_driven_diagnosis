@@ -158,7 +158,7 @@ def und2od(edges, order):
             graph[index1, index0] = 1
     return graph
 
-def dis_para(min_max, bins, fault_num=None):
+def dis_para(min_max, bins, fault_num=None, dynamic=False):
     '''
     return discretization parameters
     Args:
@@ -171,6 +171,8 @@ def dis_para(min_max, bins, fault_num=None):
             A list or 1d np.array. The discrete number for each variable
         fault_num:
             RT
+        dynamic:
+            If to learn a dynamic network.
     '''
     assert min(bins)>0
     mins = min_max[:, 0]
@@ -179,8 +181,11 @@ def dis_para(min_max, bins, fault_num=None):
     for mi, ma, b in zip(mins, maxs, bins):
         intv = (ma - mi)/b
         intervals.append(intv)
-    intervals = np.array(intervals)
-    bins = np.array(bins)
+    intervals   = np.array(intervals)
+    bins    = np.array(bins)
+    mins    = mins if not dynamic else np.tile(mins, 2)
+    intervals   = intervals if not dynamic else np.tile(intervals, 2)
+    bins    = bins if not dynamic else np.tile(bins, 2)
     if fault_num is not None:
         mins = np.pad(mins,(1,0),'constant',constant_values = 0)
         intervals = np.pad(intervals,(1,0),'constant',constant_values = 1)
@@ -239,7 +244,7 @@ def num2vec(num, bins):
         vec.append(v)
     return vec
 
-def cat_label_input(labels, inputs, mean=False):
+def cat_label_input(labels, inputs, dynamic=False):
     '''
     Args:
         labels: a 1d torch tensor.
@@ -249,15 +254,21 @@ def cat_label_input(labels, inputs, mean=False):
     '''
     # inputs: batch × nodes × time_step
     batch, nodes, step_size = inputs.size()
-    if not mean:
+    if not dynamic:
         inputs = inputs.permute([0, 2, 1])
         inputs = inputs.contiguous().view(-1, nodes)
         labels = labels.view(batch, 1)
         labels = labels.expand(batch, step_size)
         labels = labels.contiguous().view(-1, 1)
+        data = torch.cat((labels, inputs), dim=1)
+        data = data.detach().numpy()
     else:
-        inputs = torch.mean(inputs, 2)
-        labels = labels.view(batch, 1)
-    data = torch.cat((labels, inputs), dim=1)
-    data = data.detach().numpy()
+        inputs = inputs.detach().numpy()
+        labels = labels.detach().numpy()
+        data = [0]*(batch*(step_size-1))
+        for i in range(batch):
+            for j in range(step_size-1):
+                dataij = [labels[i]] + list(inputs[i,:,j]) + list(inputs[i,:,j+1])
+                data[i*(step_size-1)+j] = dataij
+        data = np.array(data)
     return data
