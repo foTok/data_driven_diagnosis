@@ -14,8 +14,7 @@ import matplotlib.pyplot as pl
 import numpy as np
 from data_manger.bpsk_data_tank import BpskDataTank
 from data_manger.utilities import get_file_list
-from ddd.utilities import single_fault_statistic
-from ddd.utilities import acc_fnr_and_fpr
+from statistics.plot_roc import plotROC
 
 #settings
 logfile = 'LSTM_estimation_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
@@ -27,6 +26,7 @@ times = 1
 data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
 test_batch = 2000
 prefix = "lstm"
+roc_type = 'micro' # 'macro'
 hidden_size_vec = [32, 64, 128]
 fc_number = (256, 7)
 #prepare data
@@ -38,13 +38,13 @@ for file in list_files:
 
 inputs, labels, _, res = mana.random_batch(test_batch, normal=0.4, single_fault=10, two_fault=0)
 label = labels.detach().numpy()
-real_label = np.sum(label*np.array([1,2,3,4,5,6]), 1)
+y_label = np.sum(label*np.array([1,2,3,4,5,6]), 1)
 
 for t in range(times):
     msg = "estimation {}.".format(t)
     logging.info(msg)
     print(msg)
-    model_path = parentdir + '\\ddd\\ann_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+    model_path = parentdir + '\\ann_diagnoser\\ann_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
     
@@ -58,8 +58,12 @@ for t in range(times):
         ed = time.clock()         # time end
         logging.info('{}, predict time={} for a {} batch'.format(model_name, ed-bg, test_batch))
         print('{}, predict time={} for a {} batch'.format(model_name, ed-bg, test_batch))
-        prob = outputs.detach().numpy()
-        pre_label = prob.argmax(axis=1)
-        acc = np.sum(pre_label == real_label) / len(pre_label)
-        logging.info('{}, acc = {}'.format(model_name, acc))
-        print('{}, acc = {}'.format(model_name, acc))
+        y_score = outputs.detach().numpy()
+        
+        # statistics
+        roc = plotROC()
+        roc.analyse(6, y_label, y_score)
+        auc = roc.auc(roc_type)
+        logging.info('{}, {} auc = {}'.format(model_name, roc_type, auc))
+        print('{}, {}, auc = {}'.format(model_name, roc_type, auc))
+        roc.plot(roc_type)

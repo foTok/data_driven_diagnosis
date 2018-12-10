@@ -221,7 +221,7 @@ class DBN:
         logCost = 0
         time_steps, _ = obs.shape
         values = [0]*(time_steps-1)
-        f_v = 0 if fault=='normal' else self.adj._fault.index(fault)
+        f_v = 0 if fault=='normal' else self.adj._fault.index(fault) + 1
         for i in range(time_steps-1):
             datai = [f_v] + list(obs[i, :]) + list(obs[i+1, :])
             values[i] = datai

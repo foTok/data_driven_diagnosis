@@ -308,9 +308,10 @@ class BN:
         Args:
             fault: a string, the fault name.
             obs: a 2d np.array, the values of all monitored variables.
+                        time_steps × node
         '''
         logCost = 0
-        f_v = 0 if fault=='normal' else self.adj._fault.index(fault)
+        f_v = 0 if fault=='normal' else self.adj._fault.index(fault) + 1
         obs = np.pad(obs,((0,0), (1,0)),'constant',constant_values = f_v)
         for kid, parents in self.adj:
             kid_v = obs[:, list(kid)]

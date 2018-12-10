@@ -232,7 +232,7 @@ def sort_v(kid, parents, kid_v, parents_v):
     values = np.concatenate((kid_v, parents_v), axis=1)
     data = np.concatenate((np.array(vars).reshape(1,len(vars)), values))
     data = data[:,data[0].argsort()] # sorted by variables
-    vars = tuple(data[0])
+    vars = tuple([int(i) for i in data[0]])
     values = data[1:]
     return vars, values
 
