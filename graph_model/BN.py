@@ -9,8 +9,9 @@ import numpy as np
 import pickle
 from math import log
 from graph_model.cpt import PT
-from graph_model.batch_statistic import sort_v
+from graph_model.utilities import sort_v
 from graph_model.utilities import Guassian_cost
+from graph_model.utilities import Guassian_cost_core
 from graph_model.utilities import discretize
 from graphviz import Digraph
 
@@ -198,7 +199,7 @@ class Gauss:
         assert fml in self.fml_tank
         beta, var, _ = self.fml_tank[fml]
         kid_v = kid_v.reshape(-1)
-        cost = Guassian_cost(kid_v, parents_v, beta, var, norm=True)
+        cost = Guassian_cost_core(parents_v, kid_v, beta, var, norm=False)
         return cost
 
 class CPT:
@@ -243,17 +244,25 @@ class CPT:
             P(kid|parents) = P(parents, kid)/P(parents)
             or None
         '''
+        kid_v   = kid_v if len(kid_v.shape)==2 else kid_v.reshape(1, len(kid_v))
+        parents_v   = parents_v if parents == () or len(parents_v.shape)==2 else parents_v.reshape(1, len(parents_v))
         vars, values = sort_v(kid, parents, kid_v, parents_v)
         if vars not in self._pts or (parents not in self._pts and parents!=()):
             return None
         cost = []
         values = self._discretize(vars, values)
         parents_v = None if parents==() else self._discretize(parents, parents_v)
-        for _values, _parents_v in zip(values, parents_v):
-            Pj = self._pts[vars].p(_values)
-            Pp = self._pts[parents].p(_parents_v) if parents!=() else 1
-            _cost = -log(Pj/Pp)
-            cost.append(_cost)
+        if parents == ():
+            for _values in values:
+                Pj = self._pts[vars].p(_values)
+                _cost = -log(Pj)
+                cost.append(_cost)
+        else:
+            for _values, _parents_v in zip(values, parents_v):
+                Pj = self._pts[vars].p(_values)
+                Pp = self._pts[parents].p(_parents_v)
+                _cost = -log(Pj/Pp)
+                cost.append(_cost)
         cost = np.mean(cost)
         return cost
 
@@ -298,17 +307,14 @@ class BN:
             P(fault|obs) ~ P(fault, obs)=P(fault)*P(obs|fault)
         Args:
             fault: a string, the fault name.
-            obs: the values of all monitored variables.
+            obs: a 2d np.array, the values of all monitored variables.
         '''
         logCost = 0
-        f_index = self.adj._fault.index(fault)
-        values = np.array([0]*self.adj._v)
-        values[f_index] = 1
-        for i, o in zip(range(self.adj._f, self.adj._v), obs):
-            values[i] = o
+        f_v = 0 if fault=='normal' else self.adj._fault.index(fault)
+        obs = np.pad(obs,((0,0), (1,0)),'constant',constant_values = f_v)
         for kid, parents in self.adj:
-            kid_v = values[list(kid)]
-            parents_v = values[list(parents)]
+            kid_v = obs[:, list(kid)]
+            parents_v = obs[:, list(parents)]
             logCost += self.para.nLogPc(kid, parents, kid_v, parents_v)
         return logCost
 

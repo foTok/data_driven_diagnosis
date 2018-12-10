@@ -11,7 +11,6 @@ from math import log
 from math import exp
 from graph_model.cpt import PT
 from graph_model.utilities import discretize
-from graph_model.utilities import sort_v
 from graph_model.utilities import num2vec
 from graph_model.utilities import Guassian_cost
 from graph_model.utilities import Guassian_cost_core
@@ -225,32 +224,6 @@ class CPT_BS:
         threshold = chi2.ppf(alpha, df)
         return chi_statistic <= threshold
 
-    def nLogPc(self, kid, parents, kid_v, parents_v):
-        '''
-        Negative Log Conditional Probability
-        Args:
-            kid: unit tuple, (kid_id,)
-            parents:tuple, (p0_id,p1_id,...)
-            kid_v: np.array
-            parents_v: np.array
-        Returns:
-            P(kid|parents) = P(parents, kid)/P(parents)
-            or None
-        '''
-        vars, values = sort_v(kid, parents, kid_v, parents_v)
-        if vars not in self._pts or (parents not in self._pts and parents!=()):
-            return None
-        values = self._discretize(vars, values)
-        parents_v = None if parents==() else self._discretize(parents, parents_v)
-        cost = []
-        for _values, _parents_v in zip(values, parents_v):
-            Pj = self._pts[vars].p(_values)
-            Pp = self._pts[parents].p(_parents_v) if parents!=() else 1
-            _cost = -log(Pj/Pp)
-            cost.append(_cost)
-        cost = np.mean(cost)
-        return cost
-
 
 class Gauss_BS:
     '''
@@ -367,23 +340,4 @@ class Gauss_BS:
         beta, var, _ = self._GGM_cache[fml]
         cost = Guassian_cost(self._batch, fml, beta, var, norm=False)
         self._cost_cache[fml] = cost    # cache
-        return cost
-
-    def nLogPc(self, kid, parents, kid_v, parents_v):
-        '''
-        Negative Log Conditional Probability
-        Args:
-            kid: unit tuple, (kid_id,)
-            parents:tuple, (p0_id,p1_id,...)
-            kid_v: np array, Y. np.array([[y0],[y1],[y2]...])
-            parents_v: np array, X
-        Returns:
-            -log(P(kid|parents))
-            or None
-        '''
-        fml = tuple(list(parents) + list(kid))
-        assert fml in self._GGM_cache
-        beta, var, _ = self._GGM_cache[fml]
-        kid_v = kid_v.reshape(-1)
-        cost = Guassian_cost(kid_v, parents_v, beta, var, norm=True)
         return cost

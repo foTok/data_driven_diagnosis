@@ -13,7 +13,9 @@ from queue import PriorityQueue
 
 def Guassian_cost(batch, fml, beta, var, norm):
     """
-    the cost function
+    the cost function.
+    X -> Y
+    parents -> kid
     """
     x = fml[:-1]
     y = fml[-1]
@@ -25,11 +27,14 @@ def Guassian_cost(batch, fml, beta, var, norm):
 def Guassian_cost_core(X, Y, beta, var, norm):
     """
     cost function
+    X -> Y
+    parents -> kid
     """
     var_basis = 1e-4
     N = len(Y)
+    X = X if len(X.shape)==2 else X.reshape(1, len(X))
     e = np.ones((N, 1))
-    X = np.hstack((e, X))
+    X = e if X.size ==0 else np.hstack((e, X))
     X = np.mat(X)
     Y_p = X * beta
     Y_p.shape = (N,)
@@ -221,9 +226,11 @@ def sort_v(kid, parents, kid_v, parents_v):
         vars: a tuple
         values: a 2d np.array
     '''
+    if parents == ():
+        return kid, kid_v
     vars = list(kid) + list(parents)
     values = np.concatenate((kid_v, parents_v), axis=1)
-    data = np.array([vars, values])
+    data = np.concatenate((np.array(vars).reshape(1,len(vars)), values))
     data = data[:,data[0].argsort()] # sorted by variables
     vars = tuple(data[0])
     values = data[1:]

@@ -11,7 +11,6 @@ from math import log
 from graph_model.cpt import PT
 from graph_model.BN import CPT
 from graph_model.BN import Gauss
-from graph_model.batch_statistic import sort_v
 from graph_model.utilities import Guassian_cost
 from graph_model.utilities import discretize
 from graphviz import Digraph
@@ -216,10 +215,21 @@ class DBN:
             P(fault|obs) ~ P(fault, obs)=P(fault)*P(obs|fault)
         Args:
             fault: a string, the fault name.
-            obs: the values of all monitored variables.
+            obs: a 2d np.array matrix; the values of all monitored variables.
+                    time_steps × nodes 
         '''
         logCost = 0
-        pass # TODO
+        time_steps, _ = obs.shape
+        values = [0]*(time_steps-1)
+        f_v = 0 if fault=='normal' else self.adj._fault.index(fault)
+        for i in range(time_steps-1):
+            datai = [f_v] + list(obs[i, :]) + list(obs[i+1, :])
+            values[i] = datai
+        values = np.array(values)
+        for kid, parents in self.adj:
+            kid_v = values[:, list(kid)]
+            parents_v = values[:, list(parents)]
+            logCost += self.para.nLogPc(kid, parents, kid_v, parents_v)
         return logCost
 
     def save(self, file):

@@ -28,14 +28,15 @@ logfile = 'GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
-train_id = 1
+train_id = 0
 times = 5
 data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
 prefix = 'GSAN'
-cpd = ['CPT', 'GAU']
+cpd = ['CPT']
 fault = ["tma", "pseudo_rate", "carrier_rate", "carrier_leak", "amplify", "tmb"]
 obs = ['m', 'p', 'c', 's0', 's1']
 ntypes = ['S', 'D']
+dis = [2, 4, 8, 16, 32, 64, 128]
 #prepare data
 mana = BpskDataTank()
 step_len=128
@@ -43,7 +44,6 @@ list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
-dis = [2, 4, 8, 16, 32]
 mm  = mana.min_max()
 
 msg = 'Log of Training GSAN'
