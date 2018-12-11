@@ -237,6 +237,16 @@ class C2AN:
             if self._Converge():
                 break
 
+    def _cost(self, adj):
+        '''
+        compute the likelihood cost
+        '''
+        cost = 0
+        for kid, parents in adj:
+            cost_u = self.statistic.fml_cost(kid, parents)
+            cost += cost_u
+        return cost
+
     def set_batch(self, batch, mins, intervals, bins):
         '''
         Set batch with discretized parameters
@@ -273,6 +283,7 @@ class C2AN:
         bBN.set_type('CPT', self.mins, self.intervals, self.bins)
         adj = Bayesian_adj(self.fault, self.obs)
         adj.set_adj(self.adj)
+        _ = self._cost(adj)
         bBN.set_adj(adj)
         for kid, parents in adj:
             vars = tuple(sorted(list(parents) + list(kid)))

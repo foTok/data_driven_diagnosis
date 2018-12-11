@@ -52,6 +52,7 @@ for t in range(times):
     
     for feature_maps in feature_maps_vec:
         model_name = prefix + '{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
+        roc_name = 'ROC' + model_name
         d = torch.load(model_path + model_name)
         d.eval()
 
@@ -68,6 +69,6 @@ for t in range(times):
         auc = roc.auc(roc_type)
         logging.info('{}, {} auc = {}'.format(model_name, roc_type, auc))
         print('{}, {}, auc = {}'.format(model_name, roc_type, auc))
-        roc.plot(roc_type)
+        roc.plot(roc_type, view=False, file=model_path+roc_name)
 
 print('DONE')

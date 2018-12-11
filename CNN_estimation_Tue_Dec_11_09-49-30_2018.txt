@@ -1,0 +1,86 @@
+2018-12-11 09:49:31,160 - INFO - estimation 0.
+2018-12-11 09:49:31,584 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), predict time=0.33198073422952884 for a 2000 batch
+2018-12-11 09:49:31,592 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), micro auc = 0.9974982916666666
+2018-12-11 09:49:31,676 - DEBUG - update_title_pos
+2018-12-11 09:49:31,687 - DEBUG - findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('C:\\Users\\zhanw22\\AppData\\Local\\Continuum\\anaconda3\\lib\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000.
+2018-12-11 09:49:31,717 - DEBUG - findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=12.0 to DejaVu Sans ('C:\\Users\\zhanw22\\AppData\\Local\\Continuum\\anaconda3\\lib\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000.
+2018-12-11 09:49:32,400 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), predict time=0.6369102466438284 for a 2000 batch
+2018-12-11 09:49:32,409 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), micro auc = 0.9994298749999999
+2018-12-11 09:49:32,480 - DEBUG - update_title_pos
+2018-12-11 09:49:33,663 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), predict time=1.1073966349333784 for a 2000 batch
+2018-12-11 09:49:33,670 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), micro auc = 0.9985435833333334
+2018-12-11 09:49:33,741 - DEBUG - update_title_pos
+2018-12-11 09:49:35,945 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), predict time=2.128264084972836 for a 2000 batch
+2018-12-11 09:49:35,952 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), micro auc = 0.9962027916666666
+2018-12-11 09:49:36,025 - DEBUG - update_title_pos
+2018-12-11 09:49:36,075 - INFO - estimation 1.
+2018-12-11 09:49:36,598 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), predict time=0.4404031511292157 for a 2000 batch
+2018-12-11 09:49:36,606 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), micro auc = 0.9969490416666666
+2018-12-11 09:49:36,681 - DEBUG - update_title_pos
+2018-12-11 09:49:37,310 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), predict time=0.569234865867176 for a 2000 batch
+2018-12-11 09:49:37,319 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), micro auc = 0.9959820416666666
+2018-12-11 09:49:37,392 - DEBUG - update_title_pos
+2018-12-11 09:49:38,578 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), predict time=1.1089755066758507 for a 2000 batch
+2018-12-11 09:49:38,586 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), micro auc = 0.9997332916666666
+2018-12-11 09:49:38,708 - DEBUG - update_title_pos
+2018-12-11 09:49:41,020 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), predict time=2.248950554914402 for a 2000 batch
+2018-12-11 09:49:41,028 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), micro auc = 0.999856875
+2018-12-11 09:49:41,094 - DEBUG - update_title_pos
+2018-12-11 09:49:41,152 - INFO - estimation 2.
+2018-12-11 09:49:41,600 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), predict time=0.36652831819653997 for a 2000 batch
+2018-12-11 09:49:41,607 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), micro auc = 0.9947744583333333
+2018-12-11 09:49:41,674 - DEBUG - update_title_pos
+2018-12-11 09:49:42,250 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), predict time=0.5202351030685648 for a 2000 batch
+2018-12-11 09:49:42,258 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), micro auc = 0.9947719583333332
+2018-12-11 09:49:42,324 - DEBUG - update_title_pos
+2018-12-11 09:49:43,440 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), predict time=1.0627537370622608 for a 2000 batch
+2018-12-11 09:49:43,448 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), micro auc = 0.9996087499999999
+2018-12-11 09:49:43,515 - DEBUG - update_title_pos
+2018-12-11 09:49:45,929 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), predict time=2.351746281184001 for a 2000 batch
+2018-12-11 09:49:45,937 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), micro auc = 0.9981527083333335
+2018-12-11 09:49:46,010 - DEBUG - update_title_pos
+2018-12-11 09:49:46,069 - INFO - estimation 3.
+2018-12-11 09:49:46,539 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), predict time=0.3852207569461239 for a 2000 batch
+2018-12-11 09:49:46,547 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), micro auc = 0.99558075
+2018-12-11 09:49:46,621 - DEBUG - update_title_pos
+2018-12-11 09:49:47,261 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), predict time=0.5798895416995471 for a 2000 batch
+2018-12-11 09:49:47,269 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), micro auc = 0.9971169583333334
+2018-12-11 09:49:47,335 - DEBUG - update_title_pos
+2018-12-11 09:49:48,454 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), predict time=1.061973424321355 for a 2000 batch
+2018-12-11 09:49:48,462 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), micro auc = 0.99899775
+2018-12-11 09:49:48,535 - DEBUG - update_title_pos
+2018-12-11 09:49:50,956 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), predict time=2.351370807351419 for a 2000 batch
+2018-12-11 09:49:50,962 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), micro auc = 0.9993387916666667
+2018-12-11 09:49:51,040 - DEBUG - update_title_pos
+2018-12-11 09:49:51,091 - INFO - estimation 4.
+2018-12-11 09:49:51,586 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), predict time=0.41391129124225046 for a 2000 batch
+2018-12-11 09:49:51,593 - INFO - cnn(8, 16, 32, 64);(8, 4, 4, 4);(256, 7), micro auc = 0.9980278333333333
+2018-12-11 09:49:51,662 - DEBUG - update_title_pos
+2018-12-11 09:49:52,296 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), predict time=0.5744493050455475 for a 2000 batch
+2018-12-11 09:49:52,304 - INFO - cnn(16, 32, 64, 128);(8, 4, 4, 4);(256, 7), micro auc = 0.996617125
+2018-12-11 09:49:52,372 - DEBUG - update_title_pos
+2018-12-11 09:49:53,524 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), predict time=1.0932104523704176 for a 2000 batch
+2018-12-11 09:49:53,532 - INFO - cnn(32, 64, 128, 256);(8, 4, 4, 4);(256, 7), micro auc = 0.999896125
+2018-12-11 09:49:53,600 - DEBUG - update_title_pos
+2018-12-11 09:49:55,848 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), predict time=2.1746774403233218 for a 2000 batch
+2018-12-11 09:49:55,855 - INFO - cnn(64, 128, 256, 512);(8, 4, 4, 4);(256, 7), micro auc = 0.999718375
+2018-12-11 09:49:55,919 - DEBUG - update_title_pos
+2018-12-11 09:49:55,977 - DEBUG - update_title_pos
+2018-12-11 09:49:56,008 - DEBUG - update_title_pos
+2018-12-11 09:49:56,038 - DEBUG - update_title_pos
+2018-12-11 09:49:56,068 - DEBUG - update_title_pos
+2018-12-11 09:49:56,100 - DEBUG - update_title_pos
+2018-12-11 09:49:56,131 - DEBUG - update_title_pos
+2018-12-11 09:49:56,161 - DEBUG - update_title_pos
+2018-12-11 09:49:56,191 - DEBUG - update_title_pos
+2018-12-11 09:49:56,221 - DEBUG - update_title_pos
+2018-12-11 09:49:56,253 - DEBUG - update_title_pos
+2018-12-11 09:49:56,283 - DEBUG - update_title_pos
+2018-12-11 09:49:56,314 - DEBUG - update_title_pos
+2018-12-11 09:49:56,345 - DEBUG - update_title_pos
+2018-12-11 09:49:56,375 - DEBUG - update_title_pos
+2018-12-11 09:49:56,406 - DEBUG - update_title_pos
+2018-12-11 09:49:56,437 - DEBUG - update_title_pos
+2018-12-11 09:49:56,469 - DEBUG - update_title_pos
+2018-12-11 09:49:56,500 - DEBUG - update_title_pos
+2018-12-11 09:49:56,531 - DEBUG - update_title_pos

@@ -25,10 +25,10 @@ snr = 20
 train_id = 1
 times = 5
 data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
-test_batch = 100
-roc_type = 'macro' # 'micro'
+test_batch = 700
+roc_type = 'micro' # 'macro'
 
-#prepare data
+# prepare data
 mana = BpskDataTank()
 step_len=128
 list_files = get_file_list(data_path)
@@ -39,17 +39,19 @@ for t in range(times):
     msg = "estimation {}.".format(t)
     logging.info(msg)
     print(msg)
+    # prepare model file
     model_path  = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     model_files = get_file_list(model_path)
     model_files = [f for f in model_files if f.endswith('.bn')]
 
-    inputs, labels, _, res = mana.random_batch(test_batch, normal=0.14, single_fault=10, two_fault=0)
+    inputs, labels, _, res = mana.random_batch(test_batch, normal=1/7, single_fault=10, two_fault=0)
     inputs = inputs.view(-1, 5, step_len)
     inputs = inputs.permute([0, 2, 1])
     label = labels.detach().numpy()
     y_label = np.sum(label*np.array([1,2,3,4,5,6]), 1)
 
     for model_name in model_files:
+        roc_name = 'ROC' + model_name[:-3]
         diagnoser = bn_diagnoser(model_path + model_name)
 
         bg = time.clock()         # time start
@@ -64,4 +66,6 @@ for t in range(times):
         auc = roc.auc(roc_type)
         logging.info('{}, {} auc = {}'.format(model_name, roc_type, auc))
         print('{}, {}, auc = {}'.format(model_name, roc_type, auc))
-        roc.plot(roc_type)
+        roc.plot(roc_type, view=False, file=model_path+roc_name)
+
+print('DONE')

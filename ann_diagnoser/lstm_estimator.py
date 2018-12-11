@@ -50,6 +50,7 @@ for t in range(times):
     
     for hidden_size in hidden_size_vec:
         model_name = prefix + '{};{}'.format(hidden_size, fc_number)
+        roc_name = 'ROC' + model_name
         d = torch.load(model_path + model_name)
         d.eval()
 
@@ -66,4 +67,6 @@ for t in range(times):
         auc = roc.auc(roc_type)
         logging.info('{}, {} auc = {}'.format(model_name, roc_type, auc))
         print('{}, {}, auc = {}'.format(model_name, roc_type, auc))
-        roc.plot(roc_type)
+        roc.plot(roc_type, view=False, file=model_path+roc_name)
+
+print('DONE')

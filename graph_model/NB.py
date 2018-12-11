@@ -36,11 +36,7 @@ class NB:
         self.fault  = fault
         self.obs    = obs  
         self.n  = None
-
-    def init_queue(self):
-        '''
-        init the search queue
-        '''
+        # Naive Init
         adj = Bayesian_adj(self.fault, self.obs)
         adj.naive_init()
         self.adj = adj

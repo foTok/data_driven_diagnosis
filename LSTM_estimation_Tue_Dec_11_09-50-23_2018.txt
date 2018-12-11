@@ -1,0 +1,14 @@
+2018-12-11 09:50:23,463 - INFO - estimation 0.
+2018-12-11 09:50:26,815 - INFO - lstm32;(256, 7), predict time=3.314933595015122 for a 2000 batch
+2018-12-11 09:50:26,824 - INFO - lstm32;(256, 7), micro auc = 0.8829094583333333
+2018-12-11 09:50:26,915 - DEBUG - update_title_pos
+2018-12-11 09:50:26,926 - DEBUG - findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('C:\\Users\\zhanw22\\AppData\\Local\\Continuum\\anaconda3\\lib\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000.
+2018-12-11 09:50:26,956 - DEBUG - findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=12.0 to DejaVu Sans ('C:\\Users\\zhanw22\\AppData\\Local\\Continuum\\anaconda3\\lib\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000.
+2018-12-11 09:50:35,447 - INFO - lstm64;(256, 7), predict time=8.437324379741177 for a 2000 batch
+2018-12-11 09:50:35,455 - INFO - lstm64;(256, 7), micro auc = 0.9220476041666666
+2018-12-11 09:50:35,523 - DEBUG - update_title_pos
+2018-12-11 09:50:52,399 - INFO - lstm128;(256, 7), predict time=16.816594860028374 for a 2000 batch
+2018-12-11 09:50:52,406 - INFO - lstm128;(256, 7), micro auc = 0.8980671458333334
+2018-12-11 09:50:52,473 - DEBUG - update_title_pos
+2018-12-11 09:50:52,519 - DEBUG - update_title_pos
+2018-12-11 09:50:52,547 - DEBUG - update_title_pos

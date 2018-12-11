@@ -60,10 +60,10 @@ for t in range(times):
             para = dis
         else:
             para = [0]
-        for d in dis:
-            para_name  = prefix + 'para, d={}'.format(d)
-            model_name = prefix + 'model, d={}.bn'.format(d)
-            fig_name = prefix + 'fig, d={}.gv'.format(d)
+        for d in para:
+            para_name  = prefix + 'para, d={}, type={}'.format(d, _type)
+            model_name = prefix + 'model, d={}, type={}'.format(d, _type)
+            fig_name = prefix + 'fig, d={}, type={}'.format(d, _type)
 
             bins    = [d]*len(obs)
             mm  = mana.min_max()
@@ -73,17 +73,17 @@ for t in range(times):
             labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1)
             data = cat_label_input(labels, inputs)
 
-            learner = C2AN(fault, obs)
-            learner.set_batch(data, mins, intervals, bins)
+            learner = NB(fault, obs)
+            learner.set_type(_type, mins, intervals, bins)
 
             bg_time = time.time()
-            learner.Build_adj()
+            learner.learn_parameters(data)
             ed_time = time.time()
             msg = '{}, train time={}'.format(para_name, ed_time-bg_time)
             logging.info(msg)
             print(msg)
 
-            BN = learner.Build_BN()
+            BN = learner.learned_NB()
             BN.save(model_path+model_name)
             msg = 'save {} to {}'.format(model_name, model_path)
             logging.info(msg)

@@ -51,14 +51,14 @@ class plotROC:
             self.tpr["macro"] = mean_tpr
             self.roc_auc["macro"] = auc(self.fpr["macro"], self.tpr["macro"])
 
-      def plot(self, key):
+      def plot(self, key, view=True, file=None):
             if isinstance(key, int):
                   assert key < self.n_classes
             elif isinstance(key, str):
                   assert key == 'micro' or key == 'macro'
             else:
                   raise RuntimeError('Unknown type.')
-            label = '{0} ROC curve (area = {1:0.2f})'.format(key, self.roc_auc[key])
+            label = '{0} ROC curve (area = {1:0.4f})'.format(key, self.roc_auc[key])
             lw = 2
             plt.figure()
             plt.plot(self.fpr[key], self.tpr[key], label=label, color='deeppink', linestyle=':', linewidth=4)
@@ -70,7 +70,10 @@ class plotROC:
             plt.ylabel('True Positive Rate')
             plt.title('Receiver Operating Characteristic')
             plt.legend(loc="lower right")
-            plt.show()
+            if file is not None:
+                  plt.savefig(file)
+            if view:
+                  plt.show()
 
       def auc(self, key):
             if isinstance(key, int):
