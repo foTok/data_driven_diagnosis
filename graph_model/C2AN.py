@@ -26,6 +26,7 @@ class C2AN:
         self.intervals  = None
         self.bins   = None
         self.adj    = None
+        self.BN = None
 
     def _build_pmap_skeleton(self, d):
         '''
@@ -274,19 +275,20 @@ class C2AN:
             for j in range(i+1, self.n):
                 if self.adj[i,j]==1 and self.adj[j,i]==1: # i<j
                     self.adj[j, i] = 0
-
-    def Build_BN(self):
-        '''
-        Build the BN
-        '''
         bBN = BN(self.fault, self.obs)
         bBN.set_type('CPT', self.mins, self.intervals, self.bins)
         adj = Bayesian_adj(self.fault, self.obs)
         adj.set_adj(self.adj)
         _ = self._cost(adj)
         bBN.set_adj(adj)
-        for kid, parents in adj:
+        self.BN = bBN
+
+    def Build_BN(self):
+        '''
+        Build the BN
+        '''
+        for kid, parents in self.BN.adj:
             vars = tuple(sorted(list(parents) + list(kid)))
-            bBN.add_para(vars, self.statistic.para(vars))
-            bBN.add_para(parents, self.statistic.para(parents))
-        return bBN
+            self.BN.add_para(vars, self.statistic.para(vars))
+            self.BN.add_para(parents, self.statistic.para(parents))
+        return self.BN

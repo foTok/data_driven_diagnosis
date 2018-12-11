@@ -40,6 +40,7 @@ step_len=128
 list_files = get_file_list(data_path)
 for file in list_files:
         mana.read_data(data_path+file, step_len=step_len, snr=snr)
+mm  = mana.min_max()
 
 dis = [2, 4, 8, 16, 32, 64, 128]
 cpd = ['CPT', 'GAU']
@@ -51,6 +52,9 @@ logging.info(msg)
 print(msg)
 
 for t in range(times):
+    msg = 'Training number = {}'.format(t)
+    logging.info(msg)
+    print(msg)
     model_path = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
@@ -62,12 +66,11 @@ for t in range(times):
             para = [0]
         for d in para:
             para_name  = prefix + 'para, d={}, type={}'.format(d, _type)
-            model_name = prefix + 'model, d={}, type={}'.format(d, _type)
-            fig_name = prefix + 'fig, d={}, type={}'.format(d, _type)
+            model_name = prefix + 'model, d={}, type={}.bn'.format(d, _type)
+            fig_name = prefix + 'fig, d={}, type={}.gv'.format(d, _type)
 
             bins    = [d]*len(obs)
-            mm  = mana.min_max()
-            mins, intervals, bins = dis_para(mm, bins, len(fault))
+            mins, intervals, bins = dis_para(mm, bins, len(fault)) if d!=0 else [None, None, None]
 
             inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
             labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1)

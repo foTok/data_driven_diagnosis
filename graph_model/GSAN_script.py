@@ -28,7 +28,7 @@ logfile = 'GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
-train_id = 0
+train_id = 1
 times = 5
 data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
 prefix = 'GSAN'
@@ -43,7 +43,6 @@ step_len=128
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
-
 mm  = mana.min_max()
 
 msg = 'Log of Training GSAN'

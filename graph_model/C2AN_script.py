@@ -40,6 +40,7 @@ step_len=128
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
+mm  = mana.min_max()
 
 dis = [2, 4, 8, 16, 32]
 mm  = mana.min_max()
@@ -59,7 +60,6 @@ for t in range(times):
         fig_name = prefix + 'fig, d={}.gv'.format(d)
 
         bins    = [d]*len(obs)
-        mm  = mana.min_max()
         mins, intervals, bins = dis_para(mm, bins, len(fault))
 
         inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)

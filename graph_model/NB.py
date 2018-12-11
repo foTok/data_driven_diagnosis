@@ -22,7 +22,7 @@ from math import exp
 
 class NB:
     '''
-    Greedy search augmented naive Beyesian Network
+    Naive Beyesian Network
     '''
     def __init__(self, fault, obs):
         self.adj    = None
