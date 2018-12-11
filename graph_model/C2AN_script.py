@@ -41,7 +41,7 @@ list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
-dis = [2, 4, 8, 16]
+dis = [2, 4, 8, 16, 32, 64, 128]
 mm  = mana.min_max()
 batch = 20000
 
