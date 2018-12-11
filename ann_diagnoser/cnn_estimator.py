@@ -45,7 +45,7 @@ for t in range(times):
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 
-    inputs, labels, _, res = mana.random_batch(test_batch, normal=0.4, single_fault=10, two_fault=0)
+    inputs, labels, _, res = mana.random_batch(test_batch, normal=1/7, single_fault=10, two_fault=0)
     inputs = inputs.view(-1, 5, step_len)
     label = labels.detach().numpy()
     y_label = np.sum(label*np.array([1,2,3,4,5,6]), 1)

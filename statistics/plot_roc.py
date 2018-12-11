@@ -74,6 +74,7 @@ class plotROC:
                   plt.savefig(file)
             if view:
                   plt.show()
+            plt.close()
 
       def auc(self, key):
             if isinstance(key, int):

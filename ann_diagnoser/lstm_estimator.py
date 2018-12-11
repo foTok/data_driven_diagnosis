@@ -36,7 +36,7 @@ list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
-inputs, labels, _, res = mana.random_batch(test_batch, normal=0.4, single_fault=10, two_fault=0)
+inputs, labels, _, res = mana.random_batch(test_batch, normal=1/7, single_fault=10, two_fault=0)
 label = labels.detach().numpy()
 y_label = np.sum(label*np.array([1,2,3,4,5,6]), 1)
 
