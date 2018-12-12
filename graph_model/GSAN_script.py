@@ -16,6 +16,7 @@ import matplotlib.pyplot as pl
 import numpy as np
 import time
 import logging
+import gc
 from graph_model.BN import BN
 from graph_model.GSAN import GSAN
 from data_manger.bpsk_data_tank import BpskDataTank
@@ -99,6 +100,18 @@ for t in range(times):
                 print(msg)
                 BN.graphviz(model_path+fig_name, view=False)
                 msg = 'save figure {} to {}'.format(fig_name, model_path)
+                logging.info(msg)
+                print(msg)
+
+                # Release Memory
+                del learner
+                del data
+                del BN
+                msg = 'begin collect memory'
+                logging.info(msg)
+                print(msg)
+                gc.collect()
+                msg = 'end collect memory'
                 logging.info(msg)
                 print(msg)
 print('DONE!')

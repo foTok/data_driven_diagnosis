@@ -42,7 +42,7 @@ for t in range(times):
     # prepare model file
     model_path  = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     model_files = get_file_list(model_path)
-    model_files = [f for f in model_files if f.startswith('NB') and f.endswith('.bn')]
+    model_files = [f for f in model_files if f.startswith('C2AN') and f.endswith('.bn')]
 
     inputs, labels, _, res = mana.random_batch(test_batch, normal=1/7, single_fault=10, two_fault=0)
     inputs = inputs.view(-1, 5, step_len)
