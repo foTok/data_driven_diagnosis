@@ -38,6 +38,8 @@ fault = ["tma", "pseudo_rate", "carrier_rate", "carrier_leak", "amplify", "tmb"]
 obs = ['m', 'p', 'c', 's0', 's1']
 ntypes = ['S', 'D']
 dis = [2, 4, 8, 16, 32, 64, 128]
+epoch = 50
+batch = 400
 #prepare data
 mana = BpskDataTank()
 step_len=128
@@ -73,11 +75,6 @@ for t in range(times):
                 learner.set_type(_type, mins, intervals, bins)
                 learner.init_queue()
                 #train
-                epoch = 50
-                batch = 400
-                train_loss = []
-                running_loss = 0.0
-
                 bg_time = time.time()
                 for i in range(epoch):
                     inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
@@ -100,18 +97,6 @@ for t in range(times):
                 print(msg)
                 BN.graphviz(model_path+fig_name, view=False)
                 msg = 'save figure {} to {}'.format(fig_name, model_path)
-                logging.info(msg)
-                print(msg)
-
-                # Release Memory
-                del learner
-                del data
-                del BN
-                msg = 'begin collect memory'
-                logging.info(msg)
-                print(msg)
-                gc.collect()
-                msg = 'end collect memory'
                 logging.info(msg)
                 print(msg)
 print('DONE!')

@@ -128,20 +128,19 @@ class GSAN:
         cost = l_cost + self.delay * r_cost
         return cost
 
-    def step(self, batch, time_step=None):
+    def step(self, batch):
         '''
         step forward
         Args:
             batch: the data
             time_step: to indicate time step
         Returns:
-            msg: a string, for log
+            _cost: _the current best cost
         '''
         if not self.queue:
             print("Empty queue. Break")
             return
-        best, cost = self.best_candidate()
-        msg = '{}:{}'.format(time_step, cost) if time_step is not None else '{}'.format(cost)
+        best, _cost = self.best_candidate()
         #self.queue.clear()
         self.statistic.set_batch(batch)
         n = len(batch)
@@ -172,7 +171,7 @@ class GSAN:
                     rev_best.reverse_edge(i, j)
                     rev_cost = self.cost(rev_best)
                     self.queue[rev_best] = rev_cost
-        return msg
+        return _cost
 
     def best_BN(self):
         '''

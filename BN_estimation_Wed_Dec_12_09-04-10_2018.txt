@@ -1,0 +1,247 @@
+2018-12-12 09:04:10,857 - INFO - estimation 0.
+2018-12-12 09:04:49,062 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, predict time=38.168112881135194 for a 700 batch
+2018-12-12 09:04:49,066 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, micro auc = 0.5190343537414965
+2018-12-12 09:04:49,559 - DEBUG - update_title_pos
+2018-12-12 09:04:49,568 - DEBUG - findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('C:\\Users\\zhanw22\\AppData\\Local\\Continuum\\anaconda3\\lib\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000.
+2018-12-12 09:04:49,744 - DEBUG - findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=12.0 to DejaVu Sans ('C:\\Users\\zhanw22\\AppData\\Local\\Continuum\\anaconda3\\lib\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000.
+2018-12-12 09:04:52,249 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, predict time=2.469437054033186 for a 700 batch
+2018-12-12 09:04:52,253 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, micro auc = 0.5199017006802721
+2018-12-12 09:04:52,310 - DEBUG - update_title_pos
+2018-12-12 09:05:48,975 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, predict time=56.60608208355238 for a 700 batch
+2018-12-12 09:05:48,980 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, micro auc = 0.9304510204081633
+2018-12-12 09:05:50,181 - DEBUG - update_title_pos
+2018-12-12 09:06:05,263 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, predict time=15.022336401383527 for a 700 batch
+2018-12-12 09:06:05,267 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, micro auc = 0.9310030612244898
+2018-12-12 09:06:05,322 - DEBUG - update_title_pos
+2018-12-12 09:06:59,274 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, predict time=53.893362827821605 for a 700 batch
+2018-12-12 09:06:59,278 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, micro auc = 0.9088469387755104
+2018-12-12 09:06:59,335 - DEBUG - update_title_pos
+2018-12-12 09:07:13,774 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, predict time=14.382992335386433 for a 700 batch
+2018-12-12 09:07:13,778 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, micro auc = 0.9140918367346939
+2018-12-12 09:07:13,833 - DEBUG - update_title_pos
+2018-12-12 09:08:09,050 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, predict time=55.16229742258693 for a 700 batch
+2018-12-12 09:08:09,055 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, micro auc = 0.7629673469387755
+2018-12-12 09:08:09,110 - DEBUG - update_title_pos
+2018-12-12 09:08:24,347 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, predict time=15.183711527254928 for a 700 batch
+2018-12-12 09:08:24,351 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, micro auc = 0.7436071428571429
+2018-12-12 09:08:24,408 - DEBUG - update_title_pos
+2018-12-12 09:09:18,238 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, predict time=53.76952218472849 for a 700 batch
+2018-12-12 09:09:18,243 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, micro auc = 0.9637255102040816
+2018-12-12 09:09:18,299 - DEBUG - update_title_pos
+2018-12-12 09:09:32,829 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, predict time=14.471975579521654 for a 700 batch
+2018-12-12 09:09:32,834 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, micro auc = 0.9511768707482993
+2018-12-12 09:09:32,891 - DEBUG - update_title_pos
+2018-12-12 09:10:27,629 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, predict time=54.68030544414506 for a 700 batch
+2018-12-12 09:10:27,633 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, micro auc = 0.8369200680272109
+2018-12-12 09:10:27,690 - DEBUG - update_title_pos
+2018-12-12 09:10:42,129 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, predict time=14.385561081416427 for a 700 batch
+2018-12-12 09:10:42,134 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, micro auc = 0.8270874149659864
+2018-12-12 09:10:42,190 - DEBUG - update_title_pos
+2018-12-12 09:11:35,080 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, predict time=52.83365730133983 for a 700 batch
+2018-12-12 09:11:35,085 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, micro auc = 0.9242248299319729
+2018-12-12 09:11:35,142 - DEBUG - update_title_pos
+2018-12-12 09:11:49,237 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, predict time=14.040471292196116 for a 700 batch
+2018-12-12 09:11:49,241 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, micro auc = 0.9255156462585034
+2018-12-12 09:11:49,300 - DEBUG - update_title_pos
+2018-12-12 09:12:43,326 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, predict time=53.968314617504916 for a 700 batch
+2018-12-12 09:12:43,330 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, micro auc = 0.8741564625850341
+2018-12-12 09:12:43,387 - DEBUG - update_title_pos
+2018-12-12 09:12:57,800 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, predict time=14.35980861844223 for a 700 batch
+2018-12-12 09:12:57,804 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, micro auc = 0.8750374149659864
+2018-12-12 09:12:57,866 - DEBUG - update_title_pos
+2018-12-12 09:12:57,914 - INFO - estimation 1.
+2018-12-12 09:13:35,187 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, predict time=37.23462800794164 for a 700 batch
+2018-12-12 09:13:35,191 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, micro auc = 0.512588775510204
+2018-12-12 09:13:35,247 - DEBUG - update_title_pos
+2018-12-12 09:13:37,744 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, predict time=2.444953853803213 for a 700 batch
+2018-12-12 09:13:37,749 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, micro auc = 0.516962925170068
+2018-12-12 09:13:37,805 - DEBUG - update_title_pos
+2018-12-12 09:14:30,839 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, predict time=52.97569242103032 for a 700 batch
+2018-12-12 09:14:30,843 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, micro auc = 0.9315717687074829
+2018-12-12 09:14:30,900 - DEBUG - update_title_pos
+2018-12-12 09:14:45,071 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, predict time=14.113331022127113 for a 700 batch
+2018-12-12 09:14:45,075 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, micro auc = 0.9322557823129252
+2018-12-12 09:14:45,131 - DEBUG - update_title_pos
+2018-12-12 09:15:38,990 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, predict time=53.792327574704586 for a 700 batch
+2018-12-12 09:15:38,994 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, micro auc = 0.9144088435374149
+2018-12-12 09:15:39,050 - DEBUG - update_title_pos
+2018-12-12 09:15:53,463 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, predict time=14.357880490872844 for a 700 batch
+2018-12-12 09:15:53,467 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, micro auc = 0.9166605442176871
+2018-12-12 09:15:53,523 - DEBUG - update_title_pos
+2018-12-12 09:16:48,778 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, predict time=55.20033396549388 for a 700 batch
+2018-12-12 09:16:48,782 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, micro auc = 0.7630945578231292
+2018-12-12 09:16:48,840 - DEBUG - update_title_pos
+2018-12-12 09:17:04,270 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, predict time=15.375575473236495 for a 700 batch
+2018-12-12 09:17:04,274 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, micro auc = 0.7369625850340136
+2018-12-12 09:17:04,334 - DEBUG - update_title_pos
+2018-12-12 09:17:59,330 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, predict time=54.93414544861548 for a 700 batch
+2018-12-12 09:17:59,333 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, micro auc = 0.9662445578231293
+2018-12-12 09:17:59,390 - DEBUG - update_title_pos
+2018-12-12 09:18:14,237 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, predict time=14.789409866949882 for a 700 batch
+2018-12-12 09:18:14,241 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, micro auc = 0.9523816326530613
+2018-12-12 09:18:14,298 - DEBUG - update_title_pos
+2018-12-12 09:19:10,162 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, predict time=55.806973418467805 for a 700 batch
+2018-12-12 09:19:10,166 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, micro auc = 0.8366591836734694
+2018-12-12 09:19:10,227 - DEBUG - update_title_pos
+2018-12-12 09:19:24,887 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, predict time=14.605864267573793 for a 700 batch
+2018-12-12 09:19:24,891 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, micro auc = 0.8300656462585033
+2018-12-12 09:19:24,948 - DEBUG - update_title_pos
+2018-12-12 09:20:17,959 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, predict time=52.953122523198545 for a 700 batch
+2018-12-12 09:20:17,963 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, micro auc = 0.9280482993197279
+2018-12-12 09:20:18,020 - DEBUG - update_title_pos
+2018-12-12 09:20:32,206 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, predict time=14.132124207566108 for a 700 batch
+2018-12-12 09:20:32,210 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, micro auc = 0.9277646258503401
+2018-12-12 09:20:32,268 - DEBUG - update_title_pos
+2018-12-12 09:21:26,285 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, predict time=53.95824091359543 for a 700 batch
+2018-12-12 09:21:26,290 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, micro auc = 0.8767908163265306
+2018-12-12 09:21:26,347 - DEBUG - update_title_pos
+2018-12-12 09:21:40,774 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, predict time=14.37125222520126 for a 700 batch
+2018-12-12 09:21:40,779 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, micro auc = 0.8800132653061224
+2018-12-12 09:21:40,840 - DEBUG - update_title_pos
+2018-12-12 09:21:40,886 - INFO - estimation 2.
+2018-12-12 09:22:18,112 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, predict time=37.18750277971958 for a 700 batch
+2018-12-12 09:22:18,116 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, micro auc = 0.5067258503401361
+2018-12-12 09:22:18,172 - DEBUG - update_title_pos
+2018-12-12 09:22:20,734 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, predict time=2.510949529414802 for a 700 batch
+2018-12-12 09:22:20,738 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, micro auc = 0.5165598639455783
+2018-12-12 09:22:20,795 - DEBUG - update_title_pos
+2018-12-12 09:23:13,789 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, predict time=52.9344291225666 for a 700 batch
+2018-12-12 09:23:13,793 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, micro auc = 0.9313108843537415
+2018-12-12 09:23:13,848 - DEBUG - update_title_pos
+2018-12-12 09:23:27,910 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, predict time=14.004958164506888 for a 700 batch
+2018-12-12 09:23:27,914 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, micro auc = 0.9309013605442176
+2018-12-12 09:23:27,971 - DEBUG - update_title_pos
+2018-12-12 09:24:21,940 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, predict time=53.91039666456459 for a 700 batch
+2018-12-12 09:24:21,944 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, micro auc = 0.9322819727891156
+2018-12-12 09:24:22,000 - DEBUG - update_title_pos
+2018-12-12 09:24:36,446 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, predict time=14.38961833166627 for a 700 batch
+2018-12-12 09:24:36,450 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, micro auc = 0.9159690476190476
+2018-12-12 09:24:36,507 - DEBUG - update_title_pos
+2018-12-12 09:25:31,552 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, predict time=54.99074339110962 for a 700 batch
+2018-12-12 09:25:31,556 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, micro auc = 0.7612125850340137
+2018-12-12 09:25:31,614 - DEBUG - update_title_pos
+2018-12-12 09:25:46,875 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, predict time=15.206106088925935 for a 700 batch
+2018-12-12 09:25:46,880 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, micro auc = 0.7371108843537416
+2018-12-12 09:25:46,937 - DEBUG - update_title_pos
+2018-12-12 09:26:41,021 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, predict time=54.02195693401791 for a 700 batch
+2018-12-12 09:26:41,026 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, micro auc = 0.9635537414965986
+2018-12-12 09:26:41,086 - DEBUG - update_title_pos
+2018-12-12 09:26:56,950 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, predict time=15.807277904678585 for a 700 batch
+2018-12-12 09:26:56,954 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, micro auc = 0.9527918367346938
+2018-12-12 09:26:57,013 - DEBUG - update_title_pos
+2018-12-12 09:27:55,393 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, predict time=58.32065819199056 for a 700 batch
+2018-12-12 09:27:55,398 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, micro auc = 0.8369809523809524
+2018-12-12 09:27:55,460 - DEBUG - update_title_pos
+2018-12-12 09:28:10,862 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, predict time=15.34758013290184 for a 700 batch
+2018-12-12 09:28:10,866 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, micro auc = 0.8306574829931973
+2018-12-12 09:28:10,922 - DEBUG - update_title_pos
+2018-12-12 09:29:05,451 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, predict time=54.46795054550921 for a 700 batch
+2018-12-12 09:29:05,455 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, micro auc = 0.9292561224489796
+2018-12-12 09:29:05,512 - DEBUG - update_title_pos
+2018-12-12 09:29:20,352 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, predict time=14.78525311699218 for a 700 batch
+2018-12-12 09:29:20,356 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, micro auc = 0.9268537414965986
+2018-12-12 09:29:20,415 - DEBUG - update_title_pos
+2018-12-12 09:30:15,803 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, predict time=55.32868431166162 for a 700 batch
+2018-12-12 09:30:15,807 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, micro auc = 0.8827285714285713
+2018-12-12 09:30:15,864 - DEBUG - update_title_pos
+2018-12-12 09:30:30,869 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, predict time=14.95287192078331 for a 700 batch
+2018-12-12 09:30:30,873 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, micro auc = 0.8797156462585034
+2018-12-12 09:30:30,929 - DEBUG - update_title_pos
+2018-12-12 09:30:30,975 - INFO - estimation 3.
+2018-12-12 09:31:08,822 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, predict time=37.80758780777933 for a 700 batch
+2018-12-12 09:31:08,826 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, micro auc = 0.5144785714285715
+2018-12-12 09:31:08,882 - DEBUG - update_title_pos
+2018-12-12 09:31:11,429 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, predict time=2.496057644827715 for a 700 batch
+2018-12-12 09:31:11,433 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, micro auc = 0.5109003401360545
+2018-12-12 09:31:11,491 - DEBUG - update_title_pos
+2018-12-12 09:32:05,785 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, predict time=54.23616184297407 for a 700 batch
+2018-12-12 09:32:05,789 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, micro auc = 0.9320221088435374
+2018-12-12 09:32:05,846 - DEBUG - update_title_pos
+2018-12-12 09:32:20,241 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, predict time=14.339990500486465 for a 700 batch
+2018-12-12 09:32:20,245 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, micro auc = 0.9320380952380952
+2018-12-12 09:32:20,301 - DEBUG - update_title_pos
+2018-12-12 09:33:15,400 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, predict time=55.03933545599375 for a 700 batch
+2018-12-12 09:33:15,404 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, micro auc = 0.9314778911564627
+2018-12-12 09:33:15,463 - DEBUG - update_title_pos
+2018-12-12 09:33:30,108 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, predict time=14.589965411734966 for a 700 batch
+2018-12-12 09:33:30,112 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, micro auc = 0.9257520408163266
+2018-12-12 09:33:30,169 - DEBUG - update_title_pos
+2018-12-12 09:34:27,503 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, predict time=57.271614244480816 for a 700 batch
+2018-12-12 09:34:27,507 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, micro auc = 0.7875289115646257
+2018-12-12 09:34:27,566 - DEBUG - update_title_pos
+2018-12-12 09:34:43,139 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, predict time=15.519270727015055 for a 700 batch
+2018-12-12 09:34:43,143 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, micro auc = 0.7243319727891158
+2018-12-12 09:34:43,202 - DEBUG - update_title_pos
+2018-12-12 09:35:37,220 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, predict time=53.95656424373942 for a 700 batch
+2018-12-12 09:35:37,224 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, micro auc = 0.9643972789115647
+2018-12-12 09:35:37,281 - DEBUG - update_title_pos
+2018-12-12 09:35:51,993 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, predict time=14.65277110961847 for a 700 batch
+2018-12-12 09:35:51,997 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, micro auc = 0.9524534013605442
+2018-12-12 09:35:52,055 - DEBUG - update_title_pos
+2018-12-12 09:36:47,752 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, predict time=55.63775093027948 for a 700 batch
+2018-12-12 09:36:47,756 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, micro auc = 0.8259870748299319
+2018-12-12 09:36:47,813 - DEBUG - update_title_pos
+2018-12-12 09:37:02,565 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, predict time=14.698367064399463 for a 700 batch
+2018-12-12 09:37:02,570 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, micro auc = 0.8080928571428572
+2018-12-12 09:37:02,627 - DEBUG - update_title_pos
+2018-12-12 09:37:57,035 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, predict time=54.34818083743971 for a 700 batch
+2018-12-12 09:37:57,040 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, micro auc = 0.9285013605442176
+2018-12-12 09:37:57,098 - DEBUG - update_title_pos
+2018-12-12 09:38:11,578 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, predict time=14.424998032813619 for a 700 batch
+2018-12-12 09:38:11,581 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, micro auc = 0.9286448979591837
+2018-12-12 09:38:11,639 - DEBUG - update_title_pos
+2018-12-12 09:39:06,798 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, predict time=55.09868004657392 for a 700 batch
+2018-12-12 09:39:06,802 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, micro auc = 0.8812493197278912
+2018-12-12 09:39:06,862 - DEBUG - update_title_pos
+2018-12-12 09:39:21,682 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, predict time=14.766876176748156 for a 700 batch
+2018-12-12 09:39:21,687 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, micro auc = 0.8786363945578232
+2018-12-12 09:39:21,744 - DEBUG - update_title_pos
+2018-12-12 09:39:21,792 - INFO - estimation 4.
+2018-12-12 09:39:59,946 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, predict time=38.1162136626499 for a 700 batch
+2018-12-12 09:39:59,951 - INFO - GSANmodel, d=0, ptype=GAU, ntype=D.bn, micro auc = 0.5056714285714285
+2018-12-12 09:40:00,009 - DEBUG - update_title_pos
+2018-12-12 09:40:02,568 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, predict time=2.5052712037013407 for a 700 batch
+2018-12-12 09:40:02,572 - INFO - GSANmodel, d=0, ptype=GAU, ntype=S.bn, micro auc = 0.5169146258503402
+2018-12-12 09:40:02,628 - DEBUG - update_title_pos
+2018-12-12 09:40:57,370 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, predict time=54.68290697661132 for a 700 batch
+2018-12-12 09:40:57,375 - INFO - GSANmodel, d=128, ptype=CPT, ntype=D.bn, micro auc = 0.9323312925170069
+2018-12-12 09:40:57,434 - DEBUG - update_title_pos
+2018-12-12 09:41:11,966 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, predict time=14.476283147087543 for a 700 batch
+2018-12-12 09:41:11,970 - INFO - GSANmodel, d=128, ptype=CPT, ntype=S.bn, micro auc = 0.9327013605442178
+2018-12-12 09:41:12,027 - DEBUG - update_title_pos
+2018-12-12 09:42:07,870 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, predict time=55.78308807178155 for a 700 batch
+2018-12-12 09:42:07,874 - INFO - GSANmodel, d=16, ptype=CPT, ntype=D.bn, micro auc = 0.9324615646258505
+2018-12-12 09:42:07,931 - DEBUG - update_title_pos
+2018-12-12 09:42:22,846 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, predict time=14.859576262391784 for a 700 batch
+2018-12-12 09:42:22,851 - INFO - GSANmodel, d=16, ptype=CPT, ntype=S.bn, micro auc = 0.9261418367346937
+2018-12-12 09:42:22,908 - DEBUG - update_title_pos
+2018-12-12 09:43:21,085 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, predict time=58.11534097323829 for a 700 batch
+2018-12-12 09:43:21,089 - INFO - GSANmodel, d=2, ptype=CPT, ntype=D.bn, micro auc = 0.7829551020408163
+2018-12-12 09:43:21,145 - DEBUG - update_title_pos
+2018-12-12 09:43:37,009 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, predict time=15.807992648995878 for a 700 batch
+2018-12-12 09:43:37,013 - INFO - GSANmodel, d=2, ptype=CPT, ntype=S.bn, micro auc = 0.7255812925170068
+2018-12-12 09:43:37,070 - DEBUG - update_title_pos
+2018-12-12 09:44:32,680 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, predict time=55.54689885926018 for a 700 batch
+2018-12-12 09:44:32,684 - INFO - GSANmodel, d=32, ptype=CPT, ntype=D.bn, micro auc = 0.9633914965986394
+2018-12-12 09:44:32,743 - DEBUG - update_title_pos
+2018-12-12 09:44:47,838 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, predict time=15.036044838160251 for a 700 batch
+2018-12-12 09:44:47,843 - INFO - GSANmodel, d=32, ptype=CPT, ntype=S.bn, micro auc = 0.9513707482993197
+2018-12-12 09:44:47,903 - DEBUG - update_title_pos
+2018-12-12 09:45:44,824 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, predict time=56.858112276724114 for a 700 batch
+2018-12-12 09:45:44,828 - INFO - GSANmodel, d=4, ptype=CPT, ntype=D.bn, micro auc = 0.8269051020408165
+2018-12-12 09:45:44,885 - DEBUG - update_title_pos
+2018-12-12 09:46:00,682 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, predict time=15.74178200840015 for a 700 batch
+2018-12-12 09:46:00,687 - INFO - GSANmodel, d=4, ptype=CPT, ntype=S.bn, micro auc = 0.8009462585034013
+2018-12-12 09:46:00,744 - DEBUG - update_title_pos
+2018-12-12 09:46:55,683 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, predict time=54.876352084134396 for a 700 batch
+2018-12-12 09:46:55,688 - INFO - GSANmodel, d=64, ptype=CPT, ntype=D.bn, micro auc = 0.9296442176870748
+2018-12-12 09:46:55,746 - DEBUG - update_title_pos
+2018-12-12 09:47:10,453 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, predict time=14.652446381346635 for a 700 batch
+2018-12-12 09:47:10,457 - INFO - GSANmodel, d=64, ptype=CPT, ntype=S.bn, micro auc = 0.9295367346938774
+2018-12-12 09:47:10,514 - DEBUG - update_title_pos
+2018-12-12 09:48:06,932 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, predict time=56.35821092113383 for a 700 batch
+2018-12-12 09:48:06,936 - INFO - GSANmodel, d=8, ptype=CPT, ntype=D.bn, micro auc = 0.8842867346938775
+2018-12-12 09:48:06,993 - DEBUG - update_title_pos
+2018-12-12 09:48:21,936 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, predict time=14.890729364216895 for a 700 batch
+2018-12-12 09:48:21,940 - INFO - GSANmodel, d=8, ptype=CPT, ntype=S.bn, micro auc = 0.8798568027210883
+2018-12-12 09:48:21,996 - DEBUG - update_title_pos
