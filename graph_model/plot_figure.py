@@ -118,4 +118,19 @@ legend = ('GSAN','DGSAN')
 
 plot_errorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True, text=False)
 
+# CNN vs LSTM
+# Micro AUC
+mean = np.array([[0.78666807,0.861443647,0.840577676]])
+
+std  = np.array([[0,0,0]])
+
+
+conf = 0.95
+xlabel = 'Hidden State Number'
+ylabel = 'Micro AUC'
+xticklabel = ('32', '64', '128')
+legend = ('LSTM',)
+
+plot_errorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True, text=False)
+
 print('DONE')
