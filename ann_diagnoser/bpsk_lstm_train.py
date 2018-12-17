@@ -35,7 +35,7 @@ for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
 for t in range(times):
-    model_path = parentdir + '\\ddd\\ann_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 

@@ -55,7 +55,7 @@ for t in range(times):
     msg = 'Training number = {}'.format(t)
     logging.info(msg)
     print(msg)
-    model_path = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+    model_path = parentdir + '\\graph_model\\bpsk\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 

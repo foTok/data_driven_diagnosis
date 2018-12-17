@@ -64,13 +64,11 @@ class mt_data_manager(data_manager):
         n = int(len(self.cfg.variables)/2)  # tank or pip number
         f_n = len(self.cfg.faults)          # fault number
         sample_interval = int(sample_rate / self.cfg.time_step)
-        n_num   = int(batch*prop)   # normal sample number
-        f_num   = int(batch*(1-prop)/f_n)   # fault sample number per fault
-        batch   = int(n_num + f_num*f_n)    # real batch number
+        m_batch = [int(batch*prop)] + [int(batch*(1-prop)/f_n)]*f_n
         # modes
         modes = ['normal'] + self.cfg.faults
         # normal
-        for m, l in zip(modes, range(len(modes))):
+        for n_num, m, l in zip(m_batch, modes, range(len(modes))):
             m_file = [file.file_name for file in self.cfg.files if file.fault_type==m]
             file_samples = [int(n_num/len(m_file))]*(len(m_file)-1)
             file_samples.append(n_num - sum(file_samples))           # sample number choiced from each file
@@ -83,4 +81,4 @@ class mt_data_manager(data_manager):
                     sampled_data    = h_data[:, range(index, index+step_num*sample_interval, sample_interval)]
                     data.append(sampled_data)
                     label.append(l)
-        return np.array(data), np.array(label)
+        return np.array(data).astype(np.float32), np.array(label).astype(np.float32)

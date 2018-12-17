@@ -6,8 +6,7 @@ import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
 from ann_diagnoser.cnn_diagnoser import cnn_diagnoser
-from data_manger.bpsk_data_tank import BpskDataTank
-from data_manger.utilities import get_file_list
+from data_manager2.data_manager import mt_data_manager
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -17,26 +16,26 @@ import time
 import logging
 
 #settings
-logfile = 'CNN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = 'MT_CNN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
 train_id = 1
 times = 5
-data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
-prefix = "cnn"
+data_path = parentdir + '\\tank_systems\\data\\train{}\\'.format(train_id)
+prefix = "mt_cnn"
 kernel_sizes = (8, 4, 4, 4)
 feature_maps_vec = [(8, 16, 32, 64), (16, 32, 64, 128), (32, 64, 128, 256), (64, 128, 256, 512)]
-fc_numbers = (256, 7)
+fc_numbers = (256, 21)
 #prepare data
-mana = BpskDataTank()
-step_len=128
-list_files = get_file_list(data_path)
-for file in list_files:
-    mana.read_data(data_path+file, step_len=step_len, snr=snr)
+mana = mt_data_manager()
+sample_rate = 1.0
+step_len = 64
+mana.load_data(data_path)
+mana.add_noise(snr)
 
 for t in range(times):
-    model_path = parentdir + '\\ddd\\ann_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+    model_path = parentdir + '\\ann_diagnoser\\mt\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 
@@ -45,7 +44,7 @@ for t in range(times):
         para_name  = prefix + 'para{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
         fig_name = prefix + 'fig{};{};{}.jpg'.format(feature_maps, kernel_sizes, fc_numbers)
 
-        diagnoser = cnn_diagnoser(kernel_sizes, feature_maps, fc_numbers)
+        diagnoser = cnn_diagnoser(kernel_sizes, feature_maps, fc_numbers, input_size=(10, 64))
         print(diagnoser)
         loss = nn.CrossEntropyLoss()
         optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)
@@ -57,11 +56,12 @@ for t in range(times):
         running_loss = 0.0
         bg_time = time.time()
         for i in range(epoch):
-            inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
-            labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1).long()
+            inputs, labels = mana.random_h_batch(batch=batch, step_num=64, prop=0.2, sample_rate=sample_rate)
+            inputs = torch.from_numpy(inputs)
+            labels = torch.from_numpy(labels).long()
             optimizer.zero_grad()
             outputs = diagnoser(inputs)
-            l = loss(outputs, labels.long())
+            l = loss(outputs, labels)
 
             loss_i = l.item()
             running_loss += loss_i
@@ -91,3 +91,5 @@ for t in range(times):
         pl.xlabel("Epoch")
         pl.ylabel("Loss")
         pl.savefig(model_path+fig_name)
+
+print('DONE')

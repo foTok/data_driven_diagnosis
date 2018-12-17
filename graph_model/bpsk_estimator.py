@@ -40,7 +40,7 @@ for t in range(times):
     logging.info(msg)
     print(msg)
     # prepare model file
-    model_path  = parentdir + '\\graph_model\\pg_model\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+    model_path  = parentdir + '\\graph_model\\bpsk\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     model_files = get_file_list(model_path)
     model_files = [f for f in model_files if f.startswith('GSAN') and f.endswith('.bn')]
 

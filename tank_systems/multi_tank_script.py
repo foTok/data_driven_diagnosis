@@ -9,7 +9,7 @@ from data_manager2.data_cfg import data_cfg
 
 # data file path
 simu_id     = 0
-data_path   = parentdir + '\\tank_systems\\data\\{}\\'.format(simu_id)
+data_path   = parentdir + '\\tank_systems\\data\\train{}\\'.format(simu_id)
 if not os.path.isdir(data_path):
     os.makedirs(data_path)
 prefix = 'multi-tank-simu'
