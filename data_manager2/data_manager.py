@@ -70,13 +70,15 @@ class mt_data_manager(data_manager):
         # normal
         for n_num, m, l in zip(m_batch, modes, range(len(modes))):
             m_file = [file.file_name for file in self.cfg.files if file.fault_type==m]
+            f_time = [file.fault_time for file in self.cfg.files if file.fault_type==m]
             file_samples = [int(n_num/len(m_file))]*(len(m_file)-1)
             file_samples.append(n_num - sum(file_samples))           # sample number choiced from each file
-            for file, i in zip(m_file, file_samples):
+            for file, f_t, i in zip(m_file, f_time, file_samples):
                 h_data    = self.noise_data[file][:n,:]
                 _, len_data = h_data.shape
+                sample_begin = int(f_t/self.cfg.time_step - sample_interval*step_num/2) if f_t > 0 else 0
                 sample_end  = len_data - sample_interval*step_num
-                sampled_index   = np.random.choice(range(sample_end), i)
+                sampled_index   = np.random.choice(range(sample_begin, sample_end), i)
                 for index in sampled_index:
                     sampled_data    = h_data[:, range(index, index+step_num*sample_interval, sample_interval)]
                     data.append(sampled_data)

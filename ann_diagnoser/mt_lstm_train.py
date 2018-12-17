@@ -5,7 +5,7 @@ import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
-from ann_diagnoser.cnn_diagnoser import cnn_diagnoser
+from ann_diagnoser.lstm_diagnoser import lstm_diagnoser
 from data_manager2.data_manager import mt_data_manager
 import torch
 import torch.nn as nn
@@ -16,16 +16,15 @@ import time
 import logging
 
 #settings
-logfile = 'MT_CNN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = 'MT_LSTM_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
 train_id = 1
 times = 5
 data_path = parentdir + '\\tank_systems\\data\\train{}\\'.format(train_id)
-prefix = "mt_cnn"
-kernel_sizes = (8, 4, 4, 4)
-feature_maps_vec = [(8, 16, 32, 64), (16, 32, 64, 128), (32, 64, 128, 256), (64, 128, 256, 512)]
+prefix = "mt_lstm"
+hidden_size_vec = [32, 64, 128]
 fc_numbers = (256, 21)
 #prepare data
 mana = mt_data_manager()
@@ -39,18 +38,18 @@ for t in range(times):
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 
-    for feature_maps in feature_maps_vec:
-        model_name = prefix + '{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
-        para_name  = prefix + 'para{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
-        fig_name = prefix + 'fig{};{};{}.jpg'.format(feature_maps, kernel_sizes, fc_numbers)
+    for hidden_size in hidden_size_vec:
+        model_name = prefix + '{};{}'.format(hidden_size, fc_numbers)
+        para_name  = prefix + 'para{};{}'.format(hidden_size, fc_numbers)
+        fig_name = prefix + 'fig{};{}.jpg'.format(hidden_size, fc_numbers)
 
-        diagnoser = cnn_diagnoser(kernel_sizes, feature_maps, fc_numbers, input_size=(10, step_len))
+        diagnoser = lstm_diagnoser(hidden_size, fc_numbers, input_size=(10, step_len))
         print(diagnoser)
         loss = nn.CrossEntropyLoss()
         optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)
 
         #train
-        epoch = 500
+        epoch = 2000
         batch = 1000
         train_loss = []
         running_loss = 0.0
@@ -91,5 +90,3 @@ for t in range(times):
         pl.xlabel("Epoch")
         pl.ylabel("Loss")
         pl.savefig(model_path+fig_name)
-
-print('DONE')
