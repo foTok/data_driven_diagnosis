@@ -86,8 +86,18 @@ class tank:
     def output(self):
         return self.h_o
 
-    def trajectory(self):
-        return (tuple(self.h), tuple(self.f), tuple(self.x))
+    def trajectory(self, x=True):
+        if x:
+            return (tuple(self.h), tuple(self.f), tuple(self.x))
+        else:
+            return (tuple(self.h), tuple(self.f))
+
+    def reset(self):
+        self.h_o    = 0
+        self.leakage    = 0
+        self.h.clear()
+        self.f.clear()
+        self.x.clear()
 
 
 class pip:
@@ -122,8 +132,19 @@ class pip:
     def output(self):
         return (self.q_i0, self.q_i1)
 
-    def trajectory(self):
-        return (tuple(self.q), tuple(self.f), tuple(self.x))
+    def trajectory(self, x=True):
+        if x:
+            return (tuple(self.q), tuple(self.f), tuple(self.x))
+        else:
+            return (tuple(self.q), tuple(self.f))
+
+    def reset(self):
+        self.q_i0   = 0
+        self.q_i1   = 0
+        self.stuck  = 0
+        self.q.clear()
+        self.f.clear()
+        self.x.clear()
 
 
 class multi_tank:
@@ -134,8 +155,8 @@ class multi_tank:
         self.n  = n # tank number
         self.A  = A
         self.S  = S
-        self.q  = []
-        self.x  = []
+        self.q  = []    # input
+        self.x  = []    # time axis
         self.tanks  = []
         self.pips   = []
 
@@ -174,14 +195,17 @@ class multi_tank:
             _, q_p[i]  = self.pips[i].output()
         return (tuple(h_t), tuple(q_p))
 
-    def trajectory(self):
+    def trajectory(self, x=True):
         h_t = [0]*self.n        # height of tanks
         q_p = [0]*self.n        # q of pips
         for i in range(self.n):
-            h_t[i]  = self.tanks[i].trajectory()
+            h_t[i]  = self.tanks[i].trajectory(x=False)
         for i in range(self.n):
-            q_p[i]  = self.pips[i].trajectory()
-        return (tuple(h_t), tuple(q_p))
+            q_p[i]  = self.pips[i].trajectory(x=False)
+        if x:
+            return (tuple(h_t), tuple(q_p), tuple(self.x))
+        else:
+            return (tuple(h_t), tuple(q_p))
 
     def plot_trajectory(self, trajectory, name, id, view_fault=False):
         '''
@@ -199,7 +223,8 @@ class multi_tank:
             y1label = 'Pip {} Stuck Value'.format(id)
         else:
             raise RuntimeError('Unknonwn component.')
-        data_s, data_f, data_t = data[id]
+        data_t  = trajectory[2]
+        data_s, data_f = data[id]
         plt.figure()
         plt.plot(data_t, data_s)
         plt.xlabel('Time (s)')
@@ -249,3 +274,10 @@ class multi_tank:
                 insert_fault    = True
             self.step(q_i, time_step)
     
+    def reset(self):
+        self.q.clear()
+        self.x.clear()
+        for t in self.tanks:
+            t.reset()
+        for p in self.pips:
+            p.reset()
