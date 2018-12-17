@@ -22,7 +22,7 @@ class cfg_item:
 
 
 class data_cfg:
-    def __init__(self, faults, fault_paras):
+    def __init__(self, variables, time_step, faults, fault_paras):
         '''
         Usually, one fault corresponds to one fault parameter. But sometimes, 
         a fault may correspond to several fault parameters.
@@ -30,6 +30,8 @@ class data_cfg:
             faults: list of string, fault names.
             fault_paras: list of string, fault parameters names.
         '''
+        self.variables  = variables
+        self.time_step  = time_step
         self.faults = faults
         self.fault_paras    = fault_paras
         self.files  = []

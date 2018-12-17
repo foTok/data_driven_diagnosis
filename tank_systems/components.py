@@ -281,3 +281,10 @@ class multi_tank:
             t.reset()
         for p in self.pips:
             p.reset()
+
+    def np_trajectory(self):
+        data = [0]*(2*self.n)
+        for i in range(self.n):
+            data[i]  = self.tanks[i].trajectory(x=False)[0]
+            data[self.n+i]  = self.pips[i].trajectory(x=False)[0]
+        return np.array(data)
