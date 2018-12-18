@@ -1,49 +1,42 @@
 '''
-The script to learn BN based on Greedy Search Improve Naive Bayesian Network
+The script to learn BN based on Greedy Search Augmented Naive Bayesian Network
 '''
-
-"""
-the main file to conduct the computation
-"""
 import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
-import torch
-import numpy as np
 import time
 import logging
 from graph_model.BN import BN
 from graph_model.GSAN import GSAN
-from data_manger.bpsk_data_tank import BpskDataTank
-from data_manger.utilities import get_file_list
+from data_manager2.data_manager import mt_data_manager
 from graph_model.utilities import dis_para
 from graph_model.utilities import cat_label_input
 
 #settings
-logfile = parentdir + '\\log\\bpsk\\'\
-        'GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = parentdir + '\\log\\mt\\'\
+        'MT_GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
-train_id = 1
+train_id = 0
 times = 5
-data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
-prefix = 'GSAN'
+data_path = parentdir + '\\tank_systems\\data\\train{}\\'.format(train_id)
+prefix = 'mt_GSAN'
 cpd = ['CPT', 'GAU']
-fault = ["tma", "pseudo_rate", "carrier_rate", "carrier_leak", "amplify", "tmb"]
-obs = ['m', 'p', 'c', 's0', 's1']
 ntypes = ['S', 'D']
 dis = [2, 4, 8, 16, 32, 64, 128]
 epoch = 50
 batch = 400
+step_len=64
+sample_rate = 1.0
 #prepare data
-mana = BpskDataTank()
-step_len=128
-list_files = get_file_list(data_path)
-for file in list_files:
-    mana.read_data(data_path+file, step_len=step_len, snr=snr)
-mm  = mana.min_max()
+mana = mt_data_manager()
+mana.load_data(data_path)
+mana.add_noise(snr)
+mm  = mana.mm
+fault   = mana.cfg.variables
+obs = mana.cfg.faults
 
 msg = 'Log of Training GSAN'
 logging.info(msg)
@@ -51,7 +44,7 @@ print(msg)
 
 for t in range(times):
     for ntype in ntypes:
-        model_path = parentdir + '\\graph_model\\bpsk\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+        model_path = parentdir + '\\graph_model\\mt\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
         if not os.path.isdir(model_path):
             os.makedirs(model_path)
         
@@ -74,8 +67,7 @@ for t in range(times):
                 #train
                 bg_time = time.time()
                 for i in range(epoch):
-                    inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
-                    labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1)
+                    inputs, labels = mana.random_h_batch(batch=batch, step_num=64, prop=0.2, sample_rate=sample_rate)
                     data = cat_label_input(labels, inputs, ntype=='D')
 
                     msg = learner.step(data)

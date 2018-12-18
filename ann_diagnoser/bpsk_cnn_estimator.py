@@ -1,6 +1,6 @@
-"""
+'''
 estimate the diagnoser or feature extractor randomly
-"""
+'''
 import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
@@ -8,16 +8,15 @@ sys.path.insert(0,parentdir)
 import time
 import logging
 import torch
-import torch.nn as nn
-import torch.optim as optim
-import matplotlib.pyplot as pl
 import numpy as np
+import matplotlib.pyplot as pl
 from statistics.plot_roc import plotROC
 from data_manger.bpsk_data_tank import BpskDataTank
 from data_manger.utilities import get_file_list
 
 #settings
-logfile = 'CNN_estimation_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = parentdir + '\\log\\bpsk\\'\
+        'CNN_estimation_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20

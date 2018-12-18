@@ -5,13 +5,6 @@ import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
-import pickle
-import numpy as np
-
-import os
-import sys
-parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
-sys.path.insert(0,parentdir)
 import numpy as np
 from graph_model.BN import BN
 from graph_model.BN import Bayesian_adj

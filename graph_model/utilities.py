@@ -1,6 +1,6 @@
-"""
+'''
 some utilities
-"""
+'''
 import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
@@ -254,12 +254,14 @@ def num2vec(num, bins):
 def cat_label_input(labels, inputs, dynamic=False):
     '''
     Args:
-        labels: a 1d torch tensor.
-        inputs: a 3d torch tensor.
+        labels: a 1d torch tensor or np.array.
+        inputs: a 3d torch tensor or np.array.
     Returns:
         a 2d torch np.array
     '''
     # inputs: batch × nodes × time_step
+    if isinstance(labels, np.ndarray):
+        labels, inputs = torch.from_numpy(labels), torch.from_numpy(inputs)
     batch, nodes, step_size = inputs.size()
     if not dynamic:
         inputs = inputs.permute([0, 2, 1])

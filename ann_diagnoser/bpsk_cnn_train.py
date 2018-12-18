@@ -1,6 +1,6 @@
-"""
-the main file to conduct the computation
-"""
+'''
+Train BPSK CNN diagnoser
+'''
 import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
@@ -17,7 +17,8 @@ import time
 import logging
 
 #settings
-logfile = 'CNN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = parentdir + '\\log\\bpsk\\'\
+        'CNN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20

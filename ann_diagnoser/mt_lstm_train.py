@@ -1,6 +1,6 @@
-"""
-the main file to conduct the computation
-"""
+'''
+Train MT LSTM diagnoser
+'''
 import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
@@ -16,7 +16,8 @@ import time
 import logging
 
 #settings
-logfile = 'MT_LSTM_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = parentdir + '\\log\\mt\\'\
+        'MT_LSTM_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 snr = 20
@@ -55,7 +56,7 @@ for t in range(times):
         running_loss = 0.0
         bg_time = time.time()
         for i in range(epoch):
-            inputs, labels = mana.random_h_batch(batch=batch, step_num=64, prop=0.2, sample_rate=sample_rate)
+            inputs, labels = mana.random_h_batch(batch=batch, step_num=step_len, prop=0.2, sample_rate=sample_rate)
             inputs = torch.from_numpy(inputs)
             labels = torch.from_numpy(labels).long()
             optimizer.zero_grad()

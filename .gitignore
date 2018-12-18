@@ -4,10 +4,7 @@
 *npy
 *.pkl
 *.pdf
-/ddd/runs/
 bk/*
-ann_model
-pg_model
 data
 bpsk
 multi_tank
