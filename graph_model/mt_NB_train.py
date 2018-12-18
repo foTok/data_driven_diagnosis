@@ -13,27 +13,32 @@ from data_manager2.data_manager import mt_data_manager
 from graph_model.utilities import dis_para
 from graph_model.utilities import cat_label_input
 
-#settings
-logfile = parentdir + '\\log\\mt\\'\
-        'MT_NB_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+#   settings
+train_id    = 1
+snr         = 20
+sample_rate = 1.0
+step_len    = 64
+dis         = [2, 4, 8, 16, 32, 64, 128]
+batch       = 20000
+times       = 5
+cpd         = ['CPT', 'GAU']
+prefix      = 'mt_NB'
+#   log
+log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)
+if not os.path.isdir(log_path):
+    os.makedirs(log_path)
+log_name = 'NB_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
-snr = 20
-train_id = 0
-times = 5
-data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
-prefix = 'mt_NB'
-#prepare data
+#   prepare data
+data_path = parentdir + '\\tank_systems\\data\\train{}\\'.format(train_id)
 mana = mt_data_manager()
 mana.load_data(data_path)
 mana.add_noise(snr)
 mm  = mana.mm
 fault   = mana.cfg.variables
 obs = mana.cfg.faults
-
-dis = [2, 4, 8, 16, 32, 64, 128]
-cpd = ['CPT', 'GAU']
-batch = 20000
 
 msg = 'Log of Training NB'
 logging.info(msg)
@@ -43,7 +48,7 @@ for t in range(times):
     msg = 'Training number = {}'.format(t)
     logging.info(msg)
     print(msg)
-    model_path = parentdir + '\\graph_model\\bpsk\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+    model_path = parentdir + '\\graph_model\\mt\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 
@@ -60,7 +65,7 @@ for t in range(times):
             bins    = [d]*len(obs)
             mins, intervals, bins = dis_para(mm, bins, len(fault)) if d!=0 else [None, None, None]
 
-            inputs, labels = mana.random_h_batch(batch=batch, step_num=64, prop=0.2, sample_rate=sample_rate)
+            inputs, labels = mana.random_h_batch(batch=batch, step_num=step_len, prop=0.2, sample_rate=sample_rate)
             data = cat_label_input(labels, inputs)
 
             learner = NB(fault, obs)

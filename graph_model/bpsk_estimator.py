@@ -14,20 +14,23 @@ from graph_model.bn_diagnoser import bn_diagnoser
 from statistics.plot_roc import plotROC
 
 #settings
-logfile = parentdir + '\\log\\bpsk\\'\
-        'BN_estimation_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+train_id    = 1
+snr         = 20
+times       = 5
+test_batch  = 700
+step_len    =128
+roc_type    = 'micro' # 'macro'
+#   log
+log_path = parentdir + '\\log\\bpsk\\train{}\\{}db\\'.format(train_id, snr)
+if not os.path.isdir(log_path):
+    os.makedirs(log_path)
+log_name = 'BN_estimation_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
-snr = 20
-train_id = 1
-times = 5
-data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
-test_batch = 700
-roc_type = 'micro' # 'macro'
-
 # prepare data
+data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
 mana = BpskDataTank()
-step_len=128
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)

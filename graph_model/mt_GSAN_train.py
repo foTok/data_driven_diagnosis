@@ -13,24 +13,28 @@ from data_manager2.data_manager import mt_data_manager
 from graph_model.utilities import dis_para
 from graph_model.utilities import cat_label_input
 
-#settings
-logfile = parentdir + '\\log\\mt\\'\
-        'MT_GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+#   settings
+train_id    = 1
+snr         = 20
+sample_rate = 1.0
+step_len    = 64
+dis         = [2, 4, 8, 16, 32, 64, 128]
+epoch       = 50
+batch       = 400
+times       = 5
+prefix      = 'mt_GSAN'
+cpd         = ['CPT', 'GAU']
+ntypes      = ['S', 'D']
+#   log
+log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)
+if not os.path.isdir(log_path):
+    os.makedirs(log_path)
+log_name = 'MT_GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
-snr = 20
-train_id = 0
-times = 5
+#   prepare data
 data_path = parentdir + '\\tank_systems\\data\\train{}\\'.format(train_id)
-prefix = 'mt_GSAN'
-cpd = ['CPT', 'GAU']
-ntypes = ['S', 'D']
-dis = [2, 4, 8, 16, 32, 64, 128]
-epoch = 50
-batch = 400
-step_len=64
-sample_rate = 1.0
-#prepare data
 mana = mt_data_manager()
 mana.load_data(data_path)
 mana.add_noise(snr)
@@ -67,7 +71,7 @@ for t in range(times):
                 #train
                 bg_time = time.time()
                 for i in range(epoch):
-                    inputs, labels = mana.random_h_batch(batch=batch, step_num=64, prop=0.2, sample_rate=sample_rate)
+                    inputs, labels = mana.random_h_batch(batch=batch, step_num=step_len, prop=0.2, sample_rate=sample_rate)
                     data = cat_label_input(labels, inputs, ntype=='D')
 
                     msg = learner.step(data)

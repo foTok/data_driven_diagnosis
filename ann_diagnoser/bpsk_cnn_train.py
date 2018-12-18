@@ -16,22 +16,26 @@ import numpy as np
 import time
 import logging
 
-#settings
-logfile = parentdir + '\\log\\bpsk\\'\
-        'CNN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+#   settings
+train_id            = 1
+snr                 = 20
+times               = 5
+step_len            = 128
+kernel_sizes        = (8, 4, 4, 4)
+feature_maps_vec    = [(8, 16, 32, 64), (16, 32, 64, 128), (32, 64, 128, 256), (64, 128, 256, 512)]
+fc_numbers          = (256, 7)
+prefix              = 'cnn'
+#   log
+log_path = parentdir + '\\log\\bpsk\\train{}\\{}db\\'.format(train_id, snr)
+if not os.path.isdir(log_path):
+    os.makedirs(log_path)
+log_name = 'CNN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
-snr = 20
-train_id = 1
-times = 5
-data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
-prefix = "cnn"
-kernel_sizes = (8, 4, 4, 4)
-feature_maps_vec = [(8, 16, 32, 64), (16, 32, 64, 128), (32, 64, 128, 256), (64, 128, 256, 512)]
-fc_numbers = (256, 7)
 #prepare data
+data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
 mana = BpskDataTank()
-step_len=128
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)

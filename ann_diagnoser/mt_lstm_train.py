@@ -16,21 +16,25 @@ import time
 import logging
 
 #settings
-logfile = parentdir + '\\log\\mt\\'\
-        'MT_LSTM_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+train_id        = 1
+snr             = 20
+times           = 5
+sample_rate     = 1.0
+step_len        = 64
+hidden_size_vec = [32, 64, 128]
+fc_numbers      = (256, 21)
+prefix          = 'mt_lstm'
+#   log
+log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)
+if not os.path.isdir(log_path):
+    os.makedirs(log_path)
+log_name = 'LSTM_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
-snr = 20
-train_id = 1
-times = 5
-data_path = parentdir + '\\tank_systems\\data\\train{}\\'.format(train_id)
-prefix = "mt_lstm"
-hidden_size_vec = [32, 64, 128]
-fc_numbers = (256, 21)
 #prepare data
+data_path = parentdir + '\\tank_systems\\data\\train{}\\'.format(train_id)
 mana = mt_data_manager()
-sample_rate = 1.0
-step_len = 64
 mana.load_data(data_path)
 mana.add_noise(snr)
 

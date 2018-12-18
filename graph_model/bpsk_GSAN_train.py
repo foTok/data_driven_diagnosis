@@ -20,26 +20,30 @@ from data_manger.utilities import get_file_list
 from graph_model.utilities import dis_para
 from graph_model.utilities import cat_label_input
 
-#settings
-logfile = parentdir + '\\log\\bpsk\\'\
-        'GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+#   settings
+train_id    = 1
+snr         = 20
+times       = 5
+step_len    =128
+dis         = [2, 4, 8, 16, 32, 64, 128]
+epoch       = 50
+batch       = 400
+prefix      = 'GSAN'
+cpd         = ['CPT', 'GAU']
+fault       = ["tma", "pseudo_rate", "carrier_rate", "carrier_leak", "amplify", "tmb"]
+obs         = ['m', 'p', 'c', 's0', 's1']
+ntypes      = ['S', 'D']
+#   log
+log_path = parentdir + '\\log\\bpsk\\train{}\\{}db\\'.format(train_id, snr)
+if not os.path.isdir(log_path):
+    os.makedirs(log_path)
+log_name = 'GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = log_path + log_name    
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
-snr = 20
-train_id = 1
-times = 5
+#   prepare data
 data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
-prefix = 'GSAN'
-cpd = ['CPT', 'GAU']
-fault = ["tma", "pseudo_rate", "carrier_rate", "carrier_leak", "amplify", "tmb"]
-obs = ['m', 'p', 'c', 's0', 's1']
-ntypes = ['S', 'D']
-dis = [2, 4, 8, 16, 32, 64, 128]
-epoch = 50
-batch = 400
-#prepare data
 mana = BpskDataTank()
-step_len=128
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)

@@ -14,23 +14,27 @@ from data_manger.bpsk_data_tank import BpskDataTank
 from data_manger.utilities import get_file_list
 from statistics.plot_roc import plotROC
 
-#settings
-logfile = parentdir + '\\log\\mt\\'\
-        'LSTM_estimation_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+#   settings
+train_id        = 1
+snr             = 20
+times           = 1
+test_batch      = 2000
+hidden_size_vec = [32, 64, 128]
+fc_number       = (256, 7)
+step_len        =100
+prefix          = 'lstm'
+roc_type        = 'micro' # 'macro'
+#   log
+log_path = parentdir + '\\log\\bpsk\\train{}\\{}db\\'.format(train_id, snr)
+if not os.path.isdir(log_path):
+    os.makedirs(log_path)
+log_name = 'LSTM_Estimation_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
-snr = 20
-train_id = 1
-times = 1
-data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
-test_batch = 2000
-prefix = "lstm"
-roc_type = 'micro' # 'macro'
-hidden_size_vec = [32, 64, 128]
-fc_number = (256, 7)
 #prepare data
+data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
 mana = BpskDataTank()
-step_len=100
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
