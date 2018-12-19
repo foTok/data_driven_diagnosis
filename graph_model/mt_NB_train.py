@@ -37,8 +37,8 @@ mana = mt_data_manager()
 mana.load_data(data_path)
 mana.add_noise(snr)
 mm  = mana.mm
-fault   = mana.cfg.variables
-obs = mana.cfg.faults
+fault   = mana.cfg.faults
+obs = mana.cfg.variables[:10]
 
 msg = 'Log of Training NB'
 logging.info(msg)

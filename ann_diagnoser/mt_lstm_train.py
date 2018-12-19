@@ -21,7 +21,7 @@ snr             = 20
 times           = 5
 sample_rate     = 1.0
 step_len        = 64
-hidden_size_vec = [32, 64, 128]
+hidden_size_vec = [8, 16, 32]
 fc_numbers      = (256, 21)
 prefix          = 'mt_lstm'
 #   log

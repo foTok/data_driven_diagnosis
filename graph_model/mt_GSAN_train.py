@@ -18,7 +18,7 @@ train_id    = 1
 snr         = 20
 sample_rate = 1.0
 step_len    = 64
-dis         = [2, 4, 8, 16, 32, 64, 128]
+dis         = [2, 4, 8, 16, 32]
 epoch       = 50
 batch       = 400
 times       = 5
@@ -29,7 +29,7 @@ ntypes      = ['S', 'D']
 log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)
 if not os.path.isdir(log_path):
     os.makedirs(log_path)
-log_name = 'MT_GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+log_name = 'GSAN_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
@@ -39,8 +39,8 @@ mana = mt_data_manager()
 mana.load_data(data_path)
 mana.add_noise(snr)
 mm  = mana.mm
-fault   = mana.cfg.variables
-obs = mana.cfg.faults
+fault   = mana.cfg.faults
+obs = mana.cfg.variables[:10]
 
 msg = 'Log of Training GSAN'
 logging.info(msg)

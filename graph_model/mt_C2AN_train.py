@@ -20,8 +20,8 @@ sample_rate = 1.0
 step_len    = 64
 dis         = [2, 4, 8, 16, 32]
 batch       = 20000
-times       = 5
-prefix      = 'C2AN'
+times       = 1
+prefix      = 'mt_C2AN'
 #   log
 log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)
 if not os.path.isdir(log_path):
@@ -36,8 +36,8 @@ mana = mt_data_manager()
 mana.load_data(data_path)
 mana.add_noise(snr)
 mm  = mana.mm
-fault   = mana.cfg.variables
-obs = mana.cfg.faults
+fault   = mana.cfg.faults
+obs = mana.cfg.variables[:10]
 
 msg = 'Log of Training C2AN'
 logging.info(msg)
