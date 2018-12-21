@@ -26,7 +26,7 @@ tank:
             dh_o/dt = (q_i + q_i0 + q_i1 - q_f)/A
             q_f = leakage*sqrt(2*g*h_o)
 
-pip:
+pipe:
             h_i0                                  h_i1
             +--->  +-----------------------+  <----+
 
@@ -35,7 +35,7 @@ pip:
 
       input: h_i0, h_i1
       output: q_i0, q_i1
-      parameters: S, sectional area of the pip; stuck, fault parameters for pip.
+      parameters: S, sectional area of the pipe; stuck, fault parameters of the pipe.
       behavior:
             q_i0 = (1-stuck)*S*sign(h_i1 - h_i0)*sqrt(2*g*abs(h_i1 - h_i0))
             q_i1 = -q_i0
@@ -100,9 +100,9 @@ class tank:
         self.x.clear()
 
 
-class pip:
+class pipe:
     '''
-    The pip model.
+    The pipe model.
     '''
     g = 9.8
     def __init__(self, S):
@@ -122,7 +122,7 @@ class pip:
             raise RuntimeError('Unkown parameter.')
 
     def step(self, h_i0, h_i1, time_step=1.0):
-        self.q_i0 = (1-self.stuck)*self.S*(1 if h_i1 > h_i0 else -1)*np.sqrt(2*pip.g*abs(h_i1 - h_i0))
+        self.q_i0 = (1-self.stuck)*self.S*(1 if h_i1 > h_i0 else -1)*np.sqrt(2*pipe.g*abs(h_i1 - h_i0))
         self.q_i1 = -self.q_i0
         # save data
         self.q.append(self.q_i1)
@@ -158,31 +158,31 @@ class multi_tank:
         self.q  = []    # input
         self.x  = []    # time axis
         self.tanks  = []
-        self.pips   = []
+        self.pipes  = []
 
         for _ in range(self.n): # build n tanks
             t = tank(A)
             self.tanks.append(t)
 
         for _ in range(self.n):
-            p = pip(S)
-            self.pips.append(p)
+            p = pipe(S)
+            self.pipes.append(p)
 
     def step(self, q, time_step=1.0):
-        # obtain pip outputs
+        # obtain pipe outputs
         self.q.append(q)
-        pip_outs = []
+        pipe_outs = []
         for i in range(self.n):
             h_i0 = self.tanks[i].output()
             h_i1   = self.tanks[i+1].output() if i!=(self.n-1) else 0
-            self.pips[i].step(h_i0, h_i1, time_step)
-            _q   = self.pips[i].output()
-            pip_outs.append(_q)
+            self.pipes[i].step(h_i0, h_i1, time_step)
+            _q   = self.pipes[i].output()
+            pipe_outs.append(_q)
         # step tanks
         for i in range(self.n):
             q_i = q if i==0 else 0
-            _, q_i0 = pip_outs[i-1] if i!=0 else (0, 0)
-            q_i1, _ = pip_outs[i]
+            _, q_i0 = pipe_outs[i-1] if i!=0 else (0, 0)
+            q_i1, _ = pipe_outs[i]
             self.tanks[i].step(q_i0, q_i1, q_i, time_step)
         self.x.append((0 if not self.x else self.x[-1]) + time_step)
 
@@ -192,7 +192,7 @@ class multi_tank:
         for i in range(self.n):
             h_t[i]  = self.tanks[i].output()
         for i in range(self.n):
-            _, q_p[i]  = self.pips[i].output()
+            _, q_p[i]  = self.pipes[i].output()
         return (tuple(h_t), tuple(q_p))
 
     def trajectory(self, x=True):
@@ -201,7 +201,7 @@ class multi_tank:
         for i in range(self.n):
             h_t[i]  = self.tanks[i].trajectory(x=False)
         for i in range(self.n):
-            q_p[i]  = self.pips[i].trajectory(x=False)
+            q_p[i]  = self.pipes[i].trajectory(x=False)
         if x:
             return (tuple(h_t), tuple(q_p), tuple(self.x))
         else:
@@ -217,10 +217,10 @@ class multi_tank:
             data    = trajectory[0]
             y0label = 'Tank {} Height'.format(id)
             y1label = 'Tank {} Leakage Value'.format(id)
-        elif name == 'pip':
+        elif name == 'pipe':
             data    = trajectory[1]
-            y0label = 'Pip {} Flow'.format(id)
-            y1label = 'Pip {} Stuck Value'.format(id)
+            y0label = 'Pipe {} Flow'.format(id)
+            y1label = 'Pipe {} Stuck Value'.format(id)
         else:
             raise RuntimeError('Unknonwn component.')
         data_t  = trajectory[2]
@@ -265,8 +265,8 @@ class multi_tank:
                 if f_name == 'tank':
                     component   = self.tanks[f_id]
                     name    = 'leakage'
-                elif f_name == 'pip':
-                    component   = self.pips[f_id]
+                elif f_name == 'pipe':
+                    component   = self.pipes[f_id]
                     name    = 'stuck'
                 else:
                     raise RuntimeError('Unknown component.')
@@ -279,12 +279,13 @@ class multi_tank:
         self.x.clear()
         for t in self.tanks:
             t.reset()
-        for p in self.pips:
+        for p in self.pipes:
             p.reset()
 
     def np_trajectory(self):
-        data = [0]*(2*self.n)
+        data = [0]*(2*self.n + 1)
+        data[0] = self.q
         for i in range(self.n):
-            data[i]  = self.tanks[i].trajectory(x=False)[0]
-            data[self.n+i]  = self.pips[i].trajectory(x=False)[0]
+            data[i+1]  = self.tanks[i].trajectory(x=False)[0]
+            data[self.n+i+1]  = self.pipes[i].trajectory(x=False)[0]
         return np.array(data)

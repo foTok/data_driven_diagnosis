@@ -33,29 +33,35 @@ class mt_data_manager(data_manager):
     def add_noise(self, snr):
         # tank or pip number
         n = int(len(self.cfg.variables)/2)
-        mm = np.array([[float('inf'), -float('inf')]]*(2*n))
+        mm = np.array([[float('inf'), -float('inf')]]*(2*n+1))
         # ratio noise
         ratio = 1/(10**(snr/20))
         # height of tanks
         for file in self.data:
-            data = [0]*(2*n)
+            data = [0]*(2*n+1)
+            # for input
+            qi  = self.data[file][0,:]
+            std_qi  = np.std(qi)
+            noise_qi = qi + np.random.standard_normal(size=len(qi)) * std_qi * ratio
+            mm[0, 0], mm[0, 1] = min(mm[0,0], min(noise_qi)), max(mm[0,1], np.max(noise_qi))
+            data[0] = noise_qi
             for i in range(n):
-                h   = self.data[file][i,:]
-                q   = self.data[file][n+i,:]
+                h   = self.data[file][i+1,:]
+                q   = self.data[file][n+i+1,:]
                 std_h   = np.std(h)
                 std_q   = np.std(q)
                 noise_h = h + np.random.standard_normal(size=len(h)) * std_h * ratio
                 noise_q = q + np.random.standard_normal(size=len(q)) * std_q * ratio
-                mm[i, 0], mm[i, 1] = min(mm[i,0], min(noise_h)), max(mm[i,1], np.max(noise_h))
-                mm[n+i, 0], mm[n+i, 1] = min(mm[n+i,0], min(noise_q)), max(mm[n+i,1], max(noise_q))
-                data[i] = noise_h
-                data[n+i]   = noise_q
+                mm[i+1, 0], mm[i+1, 1] = min(mm[i+1,0], min(noise_h)), max(mm[i+1,1], np.max(noise_h))
+                mm[n+i+1, 0], mm[n+i+1, 1] = min(mm[n+i+1,0], min(noise_q)), max(mm[n+i+1,1], max(noise_q))
+                data[i+1] = noise_h
+                data[n+i+1]   = noise_q
             self.noise_data[file]   = np.array(data)
         self.mm = mm
 
     def random_h_batch(self, batch, step_num, prop, sample_rate):
         '''
-        return height
+        return q and height
         '''
         data    = []
         label   = []
@@ -74,13 +80,14 @@ class mt_data_manager(data_manager):
             file_samples = [int(n_num/len(m_file))]*(len(m_file)-1)
             file_samples.append(n_num - sum(file_samples))           # sample number choiced from each file
             for file, f_t, i in zip(m_file, f_time, file_samples):
-                h_data    = self.noise_data[file][:n,:]
-                _, len_data = h_data.shape
-                sample_begin = int(f_t/self.cfg.time_step - sample_interval*step_num/2) if f_t > 0 else 0
+                qh_data    = self.noise_data[file][:n+1,:] # 0 is q and 1:n+1 are heights
+                _, len_data = qh_data.shape
+                sample_begin    = int(f_t/self.cfg.time_step) if f_t > 0 else 0
                 sample_end  = len_data - sample_interval*step_num
                 sampled_index   = np.random.choice(range(sample_begin, sample_end), i)
                 for index in sampled_index:
-                    sampled_data    = h_data[:, range(index, index+step_num*sample_interval, sample_interval)]
+                    sampled_data    = qh_data[:, range(index, index+step_num*sample_interval, sample_interval)]
                     data.append(sampled_data)
                     label.append(l)
+        # inputs: batch*feature*time_step, labels: batch*label
         return np.array(data).astype(np.float32), np.array(label).astype(np.float32)

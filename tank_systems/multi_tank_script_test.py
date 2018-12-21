@@ -23,10 +23,9 @@ time_step   = 0.1   # simulated time step
 simu_time   = 1000  # simulated time
 step_len    = int(simu_time/time_step)  # simulated time step length
 # fault cfg
-fault_cfg   = {'leakage': np.random.uniform(0.1, 0.5, 3), \
-                'stuck': np.random.uniform(0.1, 0.5, 3)}
-fault_time  = [int(i) for i in np.random.uniform(10, 800, 6)]
-
+fault_cfg   = {'leakage': np.random.uniform(0.2, 0.5, 3), \
+                'stuck': np.random.uniform(0.2, 0.5, 3)}
+fault_time  = [int(i) for i in np.random.uniform(400, 1800, 6)]
 # the simulator
 mt = multi_tank(n, A, S)
 # the data cfg
@@ -35,9 +34,9 @@ fault_paras = [0]*(2*n)
 variables = [0]*(2*n)
 for i in range(n):
     faults[i]   = 'tank_leakage{}'.format(i)
-    faults[n+i] = 'pip_stuck{}'.format(i)
+    faults[n+i] = 'pipe_stuck{}'.format(i)
     fault_paras[i]  = 'tank_leakage{}'.format(i)
-    fault_paras[n+i]    = 'pip_stuck{}'.format(i)
+    fault_paras[n+i]    = 'pipe_stuck{}'.format(i)
     variables[i]    = 'height{}'.format(i)
     variables[n+i]  = 'flow{}'.format(i)
 cfg = data_cfg(variables, time_step, faults, fault_paras)
@@ -60,14 +59,14 @@ for f in fault_cfg:
     for i in range(n):
         for p in fault_cfg[f]:
             for ft in fault_time:
-                mt.run(q, h0, h1, step_len, time_step=time_step, fault=('tank' if f=='leakage' else 'pip', i, p, ft))
-                trajectory = mt.np_trajectory()
+                mt.run(q, h0, h1, step_len, time_step=time_step, fault=('tank' if f=='leakage' else 'pipe', i, p, ft))
+                trajectory  = mt.np_trajectory()
                 _file   = prefix+str(file_id)
                 np.save(data_path+_file, trajectory)
                 cfg.add_file(_file, \
-                             fault_type='tank_leakage{}'.format(i) if f=='leakage' else 'pip_stuck{}'.format(i), \
+                             fault_type='tank_leakage{}'.format(i) if f=='leakage' else 'pipe_stuck{}'.format(i), \
                              fault_time=ft, \
-                             fault_para_name='tank_leakage{}'.format(i) if f=='leakage' else 'pip_stuck{}'.format(i), \
+                             fault_para_name='tank_leakage{}'.format(i) if f=='leakage' else 'pipe_stuck{}'.format(i), \
                              fault_para_value=p)
                 file_id += 1
                 mt.reset()

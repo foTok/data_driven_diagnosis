@@ -22,8 +22,7 @@ snr                 = 20
 times               = 5
 sample_rate         = 1.0
 step_len            = 64
-step_len            = 64
-hidden_size_vec     = [32, 64, 128]
+hidden_size_vec     = [8, 16, 32]
 fc_numbers          = (256, 21)
 prefix              = 'mt_lstm'
 test_batch          = 2000
@@ -74,7 +73,7 @@ for t in range(times):
         roc.plot(roc_type, view=False, file=model_path+roc_name)
 
         # print AUC
-        AUC = [roc.auc(i) for i in range(7)]
+        AUC = [roc.auc(i) for i in range(21)]
         msg = 'AUC = {}'.format(str(AUC))
         logging.info(msg)
         print(msg)

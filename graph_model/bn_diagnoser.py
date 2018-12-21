@@ -37,7 +37,7 @@ class bn_diagnoser:
         for mode in fault:
             _logCost = self.bn.logCost(mode, obs)
             logCost.append(_logCost)
-        P = [exp(-c) for c in logCost]
+        P = [exp(-c) + 1e-20 for c in logCost]
         sumP = sum(P)
         normP = [p/sumP for p in P]
         fault_id = normP.index(max(normP))

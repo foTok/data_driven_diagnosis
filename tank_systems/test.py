@@ -20,14 +20,14 @@ S   = 0.5   # pip cross sectional area
 q   = 5     # input flow when input is on
 h0  = 5     # control height 0
 h1  = 10    # control height 1
-time_step   = 1.0   # simulated time step
+time_step   = 0.1   # simulated time step
 simu_time   = 1000  # simulated time
 step_len    = int(simu_time/time_step)  # simulated time step length
-fault   = ('tank', 0, 0.1, 200)
+fault   = ('pipe', 0, 0.20, 200)
 # the simulator
 mt = multi_tank(n, A, S)
 
-mt.run(q, h0, h1, step_len, time_step=time_step, fault=fault)
+mt.run(q, h0, h1, step_len, time_step=time_step, fault=None)
 trajectory  = mt.trajectory()
 mt.plot_trajectory(trajectory, 'tank', 0)
 mt.plot_trajectory(trajectory, 'tank', 1)

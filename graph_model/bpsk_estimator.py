@@ -18,7 +18,7 @@ train_id    = 1
 snr         = 20
 times       = 5
 test_batch  = 700
-step_len    =128
+step_len    = 128
 roc_type    = 'micro' # 'macro'
 #   log
 log_path = parentdir + '\\log\\bpsk\\train{}\\{}db\\'.format(train_id, snr)
