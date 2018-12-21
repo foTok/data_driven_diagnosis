@@ -23,7 +23,7 @@ sample_rate     = 1.0
 step_len        = 64
 hidden_size_vec = [8, 16, 32]
 fc_numbers      = (256, 21)
-prefix          = 'mt_lstm'
+prefix          = 'lstm'
 #   log
 log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)
 if not os.path.isdir(log_path):
@@ -48,7 +48,7 @@ for t in range(times):
         para_name  = prefix + 'para{};{}'.format(hidden_size, fc_numbers)
         fig_name = prefix + 'fig{};{}.jpg'.format(hidden_size, fc_numbers)
 
-        diagnoser = lstm_diagnoser(hidden_size, fc_numbers, input_size=(10, step_len))
+        diagnoser = lstm_diagnoser(hidden_size, fc_numbers, input_size=(11, step_len))
         print(diagnoser)
         loss = nn.CrossEntropyLoss()
         optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)

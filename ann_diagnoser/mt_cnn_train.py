@@ -24,7 +24,7 @@ step_len            = 64
 kernel_sizes        = (8, 4, 4, 4)
 feature_maps_vec    = [(8, 16, 32, 64), (16, 32, 64, 128), (32, 64, 128, 256), (64, 128, 256, 512)]
 fc_numbers          = (256, 21)
-prefix              = 'mt_cnn'
+prefix              = 'cnn'
 #   log
 log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)
 if not os.path.isdir(log_path):
@@ -49,7 +49,7 @@ for t in range(times):
         para_name  = prefix + 'para{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
         fig_name = prefix + 'fig{};{};{}.jpg'.format(feature_maps, kernel_sizes, fc_numbers)
 
-        diagnoser = cnn_diagnoser(kernel_sizes, feature_maps, fc_numbers, input_size=(10, step_len))
+        diagnoser = cnn_diagnoser(kernel_sizes, feature_maps, fc_numbers, input_size=(11, step_len))
         print(diagnoser)
         loss = nn.CrossEntropyLoss()
         optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)

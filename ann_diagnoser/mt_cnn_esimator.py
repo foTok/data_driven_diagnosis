@@ -26,7 +26,7 @@ kernel_sizes        = (8, 4, 4, 4)
 feature_maps_vec    = [(8, 16, 32, 64), (16, 32, 64, 128), (32, 64, 128, 256), (64, 128, 256, 512)]
 fc_numbers          = (256, 21)
 test_batch          = 2000
-prefix              = 'mt_cnn'
+prefix              = 'cnn'
 roc_type            = 'micro' # 'macro'
 #   log
 log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)

@@ -24,7 +24,7 @@ sample_rate         = 1.0
 step_len            = 64
 hidden_size_vec     = [8, 16, 32]
 fc_numbers          = (256, 21)
-prefix              = 'mt_lstm'
+prefix              = 'lstm'
 test_batch          = 2000
 roc_type            = 'micro' # 'macro'
 #   log
