@@ -20,7 +20,7 @@ q   = 5     # input flow when input is on
 h0  = 5     # control height 0
 h1  = 10    # control height 1
 time_step   = 0.1   # simulated time step
-simu_time   = 1000  # simulated time
+simu_time   = 2000  # simulated time
 step_len    = int(simu_time/time_step)  # simulated time step length
 # fault cfg
 fault_cfg   = {'leakage': np.random.uniform(0.2, 0.5, 3), \
