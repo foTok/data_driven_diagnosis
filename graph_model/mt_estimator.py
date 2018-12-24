@@ -16,7 +16,7 @@ from statistics.plot_roc import plotROC
 #settings
 train_id    = 1
 snr         = 20
-times       = 5
+times       = 2
 test_batch  = 700
 step_len    = 64
 sample_rate = 1.0
@@ -42,7 +42,7 @@ for t in range(times):
     # prepare model file
     model_path  = parentdir + '\\graph_model\\mt\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     model_files = get_file_list(model_path)
-    model_files = [f for f in model_files if f.endswith('.bn')]
+    model_files = [f for f in model_files if f.startswith('mt_NB') and f.endswith('.bn')]
 
     inputs, y_label = mana.random_h_batch(batch=test_batch, step_num=step_len, prop=0.2, sample_rate=sample_rate)
     inputs = inputs.transpose([0, 2, 1])

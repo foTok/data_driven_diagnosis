@@ -20,7 +20,7 @@ import logging
 train_id        = 1
 snr             = 20
 times           = 5
-hidden_size_vec = [32, 64, 128]
+hidden_size_vec = [8, 16, 32] # [32, 64, 128]
 fc_numbers      = (256, 7)
 step_len        = 128
 prefix          = 'lstm'

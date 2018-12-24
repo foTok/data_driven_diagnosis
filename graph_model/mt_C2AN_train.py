@@ -19,7 +19,7 @@ snr         = 20
 sample_rate = 1.0
 step_len    = 64
 dis         = [4, 8, 16, 32]
-batch       = 50000
+batch       = 200000
 times       = 1
 prefix      = 'mt_C2AN'
 #   log

@@ -120,7 +120,7 @@ plot_errorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True, te
 
 # CNN vs LSTM
 # Micro AUC
-mean = np.array([[0.78666807,0.861443647,0.840577676]])
+mean = np.array([[0.7924982464515508,0.8719461561171098,0.8659028942448016]])
 
 std  = np.array([[0,0,0]])
 
@@ -132,5 +132,27 @@ xticklabel = ('32', '64', '128')
 legend = ('LSTM',)
 
 plot_errorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True, text=False)
+
+
+
+# MT
+# Micro AUC
+mean = np.array([[0.516981684,0.962278827,0.978736786,0.985832551,0.9833125],
+                 [0.68971551,0.991809133,0.999559286,0.999741071,0.998421633],
+                 [0.646110357,0.974105153,0.899612959,0.796816939,0.647451224]])
+
+std  = np.array([[0.001044949,0.002867908,0.001700969,0.000869184,0.000365255],
+                 [0.002255306,0.00041148,6.2551E-05,9.32143E-05,6.53061E-05],
+                 [0.000351786,0.002097092,0.002943367,0.002528061,0.003106122]])
+
+
+conf = 0.95
+xlabel = 'Discretization Interval Number'
+ylabel = 'Micro AUC'
+xticklabel = ('GAU', '4', '8', '16', '32')
+legend = ('NB','GSAN','DGSAN')
+
+plot_errorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True, text=False)
+
 
 print('DONE')

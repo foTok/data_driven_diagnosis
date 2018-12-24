@@ -19,10 +19,10 @@ train_id        = 1
 snr             = 20
 times           = 1
 test_batch      = 2000
-hidden_size_vec = [32, 64, 128]
+hidden_size_vec = [32]
 fc_number       = (256, 7)
 step_len        =128
-prefix          = 'lstm'
+prefix          = 'lstm2'
 roc_type        = 'micro' # 'macro'
 #   log
 log_path = parentdir + '\\log\\bpsk\\train{}\\{}db\\'.format(train_id, snr)
@@ -71,5 +71,9 @@ for t in range(times):
         logging.info('{}, {} auc = {}'.format(model_name, roc_type, auc))
         print('{}, {}, auc = {}'.format(model_name, roc_type, auc))
         roc.plot(roc_type, view=False, file=model_path+roc_name)
+
+        # print AUC
+        # all_auc = [roc.auc(i) for i in range(7)]
+        # print('all auc = {}'.format(all_auc))
 
 print('DONE')
