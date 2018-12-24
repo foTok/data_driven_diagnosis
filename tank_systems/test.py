@@ -23,11 +23,11 @@ h1  = 10    # control height 1
 time_step   = 0.1   # simulated time step
 simu_time   = 1000  # simulated time
 step_len    = int(simu_time/time_step)  # simulated time step length
-fault   = ('pipe', 0, 0.20, 200)
+fault   = ('tank', 0, 0.20, 200)
 # the simulator
 mt = multi_tank(n, A, S)
 
-mt.run(q, h0, h1, step_len, time_step=time_step, fault=None)
+mt.run(q, h0, h1, step_len, time_step=time_step, fault=fault)
 trajectory  = mt.trajectory()
 mt.plot_trajectory(trajectory, 'tank', 0)
 mt.plot_trajectory(trajectory, 'tank', 1)

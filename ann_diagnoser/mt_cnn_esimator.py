@@ -73,10 +73,4 @@ for t in range(times):
         print('{}, {}, auc = {}'.format(model_name, roc_type, auc))
         roc.plot(roc_type, view=False, file=model_path+roc_name)
 
-        # print AUC
-        AUC = [roc.auc(i) for i in range(21)]
-        msg = 'AUC = {}'.format(str(AUC))
-        logging.info(msg)
-        print(msg)
-
 print('DONE')

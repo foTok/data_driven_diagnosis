@@ -30,8 +30,8 @@ class mt_data_manager(data_manager):
     def __init__(self):
         super(mt_data_manager, self).__init__()
 
-    def add_noise(self, snr):
-        # tank or pip number
+    def add_noise(self, snr, begin=400):
+        # tank or pipe number
         n = int(len(self.cfg.variables)/2)
         mm = np.array([[float('inf'), -float('inf')]]*(2*n+1))
         # ratio noise
@@ -43,7 +43,7 @@ class mt_data_manager(data_manager):
             qi  = self.data[file][0,:]
             std_qi  = np.std(qi)
             noise_qi = qi + np.random.standard_normal(size=len(qi)) * std_qi * ratio
-            mm[0, 0], mm[0, 1] = min(mm[0,0], min(noise_qi)), max(mm[0,1], np.max(noise_qi))
+            mm[0, 0], mm[0, 1] = min(mm[0,0], min(noise_qi[begin:])), max(mm[0,1], np.max(noise_qi[begin:]))
             data[0] = noise_qi
             for i in range(n):
                 h   = self.data[file][i+1,:]
@@ -52,8 +52,8 @@ class mt_data_manager(data_manager):
                 std_q   = np.std(q)
                 noise_h = h + np.random.standard_normal(size=len(h)) * std_h * ratio
                 noise_q = q + np.random.standard_normal(size=len(q)) * std_q * ratio
-                mm[i+1, 0], mm[i+1, 1] = min(mm[i+1,0], min(noise_h)), max(mm[i+1,1], np.max(noise_h))
-                mm[n+i+1, 0], mm[n+i+1, 1] = min(mm[n+i+1,0], min(noise_q)), max(mm[n+i+1,1], max(noise_q))
+                mm[i+1, 0], mm[i+1, 1] = min(mm[i+1,0], min(noise_h[begin:])), max(mm[i+1,1], np.max(noise_h[begin:]))
+                mm[n+i+1, 0], mm[n+i+1, 1] = min(mm[n+i+1,0], min(noise_q[begin:])), max(mm[n+i+1,1], max(noise_q[begin:]))
                 data[i+1] = noise_h
                 data[n+i+1]   = noise_q
             self.noise_data[file]   = np.array(data)

@@ -45,6 +45,7 @@ for t in range(times):
     model_files = [f for f in model_files if f.endswith('.bn')]
 
     inputs, y_label = mana.random_h_batch(batch=test_batch, step_num=step_len, prop=0.2, sample_rate=sample_rate)
+    inputs = inputs.transpose([0, 2, 1])
 
     for model_name in model_files:
         roc_name = 'ROC' + model_name[:-3]
@@ -63,11 +64,5 @@ for t in range(times):
         logging.info('{}, {} auc = {}'.format(model_name, roc_type, auc))
         print('{}, {}, auc = {}'.format(model_name, roc_type, auc))
         roc.plot(roc_type, view=False, file=model_path+roc_name)
-
-        # print AUC
-        AUC = [roc.auc(i) for i in range(21)]
-        msg = 'AUC = {}'.format(str(AUC))
-        logging.info(msg)
-        print(msg)
 
 print('DONE')

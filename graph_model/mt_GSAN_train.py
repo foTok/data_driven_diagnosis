@@ -20,7 +20,7 @@ sample_rate = 1.0
 step_len    = 64
 dis         = [4, 8, 16, 32]
 epoch       = 50
-batch       = 400
+batch       = 4000
 times       = 5
 prefix      = 'mt_GSAN'
 cpd         = ['CPT', 'GAU']
@@ -40,7 +40,7 @@ mana.load_data(data_path)
 mana.add_noise(snr)
 mm  = mana.mm
 fault   = mana.cfg.faults
-obs = mana.cfg.variables[:10]
+obs = mana.cfg.variables[:11]
 
 msg = 'Log of Training GSAN'
 logging.info(msg)

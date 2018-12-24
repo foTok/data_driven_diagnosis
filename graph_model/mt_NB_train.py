@@ -19,7 +19,7 @@ snr         = 20
 sample_rate = 1.0
 step_len    = 64
 dis         = [4, 8, 16, 32]
-batch       = 20000
+batch       = 50000
 times       = 5
 cpd         = ['CPT', 'GAU']
 prefix      = 'mt_NB'
@@ -38,7 +38,7 @@ mana.load_data(data_path)
 mana.add_noise(snr)
 mm  = mana.mm
 fault   = mana.cfg.faults
-obs = mana.cfg.variables[:10]
+obs = mana.cfg.variables[:11]
 
 msg = 'Log of Training NB'
 logging.info(msg)
