@@ -17,9 +17,9 @@ from statistics.plot_roc import plotROC
 #   settings
 train_id        = 1
 snr             = 20
-times           = 1
+times           = 5
 test_batch      = 2000
-hidden_size_vec = [32, 64, 128]
+hidden_size_vec = [8, 16, 32]
 fc_number       = (256, 7)
 step_len        =128
 prefix          = 'lstm'
