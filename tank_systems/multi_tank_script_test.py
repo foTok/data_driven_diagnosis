@@ -8,7 +8,7 @@ from tank_systems.components import multi_tank
 from data_manager2.data_cfg import data_cfg
 
 # data file path
-data_path   = parentdir + '\\tank_systems\\data\\test\\'
+data_path   = parentdir + '\\tank_systems\\data\\test4\\'
 if not os.path.isdir(data_path):
     os.makedirs(data_path)
 prefix = 'multi-tank-simu'
@@ -23,8 +23,8 @@ time_step   = 0.1   # simulated time step
 simu_time   = 2000  # simulated time
 step_len    = int(simu_time/time_step)  # simulated time step length
 # fault cfg
-fault_cfg   = {'leakage': np.random.uniform(0.2, 0.5, 3), \
-                'stuck': np.random.uniform(0.2, 0.5, 3)}
+fault_cfg   = {'leakage': np.random.uniform(0.05, 0.2, 2), \
+                'stuck': np.random.uniform(0.05, 0.2, 2)}
 fault_time  = [int(i) for i in np.random.uniform(400, 1800, 6)]
 # the simulator
 mt = multi_tank(n, A, S)

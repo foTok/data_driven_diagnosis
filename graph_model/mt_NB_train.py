@@ -14,13 +14,13 @@ from graph_model.utilities import dis_para
 from graph_model.utilities import cat_label_input
 
 #   settings
-train_id    = 1
+train_id    = 2
 snr         = 20
 sample_rate = 1.0
 step_len    = 64
 dis         = [4, 8, 16, 32]
 batch       = 200000
-times       = 5
+times       = 2
 cpd         = ['CPT', 'GAU']
 prefix      = 'mt_NB'
 #   log

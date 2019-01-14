@@ -33,11 +33,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-class cnn_diagnoser2(nn.Module):
+class cnn_distill_diagnoser(nn.Module):
     """
     The basic diagnoser constructed by Classic CNN
     """
-    def __init__(self, kernel_sizes, feature_maps, fc_numbers, input_size=(5, 128)):
+    def __init__(self, kernel_sizes, feature_maps, fc_numbers, input_size=(5, 128), T=1):
         '''
         Args:
             kernel_sizes: an int list or tuple whose length = 4. 
@@ -55,13 +55,14 @@ class cnn_diagnoser2(nn.Module):
                len(feature_maps)==4 and \
                len(fc_numbers)==2 and \
                len(input_size)==2
-        super(cnn_diagnoser2, self).__init__()
+        super(cnn_distill_diagnoser, self).__init__()
         self.kernel_sizes = kernel_sizes
         self.feature_maps = feature_maps
         self.fc_number = fc_numbers
         self.input_size = input_size
         self.padding = [(i-1)//2 for i in kernel_sizes]
         self.pooling = 2 # Pooling size is set as 2
+        self.T = T
         delta = [(2*p-k+1) for p, k in zip(self.padding, kernel_sizes)]
         self.cnn_out_length = input_size[1]
         for i in delta:
@@ -87,22 +88,24 @@ class cnn_diagnoser2(nn.Module):
                             nn.ReLU(),
                             nn.BatchNorm1d(fc_numbers[0]),
                             nn.Linear(fc_numbers[0], fc_numbers[1]),
-                            nn.Softmax(1),
                         )
+        
+        self.soft_max = nn.Softmax(1)
+
+    def set_T(self, T):
+        self.T = T
 
     def forward(self, x):
-        x = self.cnn_sequence(x)
-        x = x.view(-1, self.cnn_out_length*self.feature_maps[-1])
-        x = self.fc_sequence(x)
-        return x
+        fea = self.cnn_sequence(x)
+        flatted = fea.view(-1, self.cnn_out_length*self.feature_maps[-1])
+        logit = self.fc_sequence(flatted)
+        distill = logit / self.T
+        p = self.soft_max(distill)
+        return p, logit, fea
 
-    def features(self, x, mean=False):
-        x = self.cnn_sequence(x)
-        if mean:
-            x = torch.mean(x, 2)
-        return x
-
-    def predict(self, x):
-        x = x.view(-1, self.cnn_out_length*self.feature_maps[-1])
-        x = self.fc_sequence(x)
-        return x
+    def predict(self, fea, T=None):
+        flatted = fea.view(-1, self.cnn_out_length*self.feature_maps[-1])
+        logit = self.fc_sequence(flatted)
+        distill = logit / (self.T if T is None else T)
+        p = self.soft_max(distill)
+        return p

@@ -16,7 +16,7 @@ import time
 import logging
 
 #settings
-train_id            = 1
+train_id            = 2
 snr                 = 20
 times               = 1
 sample_rate         = 1.0

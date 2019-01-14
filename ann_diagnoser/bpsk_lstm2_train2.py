@@ -55,7 +55,7 @@ for t in range(times):
         optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)
 
         #train
-        epoch = 500
+        epoch = 2000
         batch = 1000
         train_loss = []
         running_loss = 0.0

@@ -23,7 +23,7 @@ h1  = 10    # control height 1
 time_step   = 0.1   # simulated time step
 simu_time   = 1000  # simulated time
 step_len    = int(simu_time/time_step)  # simulated time step length
-fault   = ('tank', 0, 0.20, 200)
+fault   = ('tank', 4, 0.10, 200)
 # the simulator
 mt = multi_tank(n, A, S)
 

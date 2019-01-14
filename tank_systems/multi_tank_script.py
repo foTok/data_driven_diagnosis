@@ -8,7 +8,7 @@ from tank_systems.components import multi_tank
 from data_manager2.data_cfg import data_cfg
 
 # data file path
-simu_id     = 0
+simu_id     = 2
 data_path   = parentdir + '\\tank_systems\\data\\train{}\\'.format(simu_id)
 if not os.path.isdir(data_path):
     os.makedirs(data_path)
@@ -27,11 +27,9 @@ step_len    = int(simu_time/time_step)  # simulated time step length
 if simu_id==0:
     fault_cfg   = {'leakage':[0.2], 'stuck':[0.2]}
     fault_time  = [400]
-elif simu_id==1:
-    fault_cfg   = {'leakage':[0.2, 0.3, 0.4, 0.5], 'stuck':[0.2, 0.3, 0.4, 0.5]}
-    fault_time  = [400, 600, 800, 1000, 1200, 1400, 1600, 1800]
 else:
-    raise RuntimeError('Undefined fault cfg')
+    fault_cfg   = {'leakage':[0.1, 0.2, 0.3, 0.4, 0.5], 'stuck':[0.1, 0.2, 0.3, 0.4, 0.5]}
+    fault_time  = [400, 600, 800, 1000, 1200, 1400, 1600, 1800]
 # the simulator
 mt = multi_tank(n, A, S)
 # the data cfg

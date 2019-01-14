@@ -270,7 +270,7 @@ def cat_label_input(labels, inputs, dynamic=False):
         labels = labels.expand(batch, step_size)
         labels = labels.contiguous().view(-1, 1)
         data = torch.cat((labels, inputs), dim=1)
-        data = data.detach().numpy()
+        data = data.detach().numpy()    # batch × [label, inputs]
     else:
         inputs = inputs.detach().numpy()
         labels = labels.detach().numpy()
@@ -279,5 +279,5 @@ def cat_label_input(labels, inputs, dynamic=False):
             for j in range(step_size-1):
                 dataij = [labels[i]] + list(inputs[i,:,j]) + list(inputs[i,:,j+1])
                 data[i*(step_size-1)+j] = dataij
-        data = np.array(data)
+        data = np.array(data)   # batch × [label, inputs(i-1), input(i)]
     return data

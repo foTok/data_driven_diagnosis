@@ -69,3 +69,7 @@ class lstm_diagnoser2(nn.Module):
         # x.size() = batch × hidden_size
         x = x[:,:,-1]
         return x
+
+    def predict(self, x):
+        x = self.fc_sequence(x)
+        return x

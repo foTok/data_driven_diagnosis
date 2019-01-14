@@ -134,6 +134,39 @@ legend = ('LSTM',)
 
 plot_errorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True, text=False)
 
+# ALL GSAN vs GSAN with 3 CPs Static
+
+mean = np.array([[0.733518776,	0.819369932,	0.878651905,	0.919723061,	0.952034898,	0.927663129,	0.931779932],
+                 [0.680653741,	0.737212653,	0.850907551,	0.89071898,	0.931288844,	0.89334966,	0.897011429]])
+
+std  = np.array([[0.007401881,	0.012393311,	0.001870904,	0.005152312,	0.00063963,	0.001396521,	0.000709581],
+                 [0.038032903,	0.023117006,	0.001977286,	0.009970227,	0.001982463,	0.001058779,	0.001566107]])
+
+
+conf = 0.95
+xlabel = 'Discretization Interval Number'
+ylabel = 'Micro AUC'
+xticklabel = ('2', '4', '8', '16', '32', '64', '128')
+legend = ('GSAN', 'GSAN-3')
+
+plot_errorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True, text=False)
+
+# ALL GSAN vs GSAN with 3 CPs Dynamic
+
+mean = np.array([[0.771551701,	0.832690476,	0.879842381,	0.923895442,	0.964262517,	0.927934966,	0.931537415],
+                 [0.690196531,	0.777047347,	0.863546054,	0.912546667,	0.954284422,	0.89390102,	0.89705551]])
+
+std  = np.array([[0.011290886,	0.005107924,	0.003786913,	0.010175057,	0.001048433,	0.001937305,	0.000647753],
+                 [0.003403969,	0.01528459,	0.005991054,	0.01560858,	0.001655608,	0.001361714,	0.001560895]])
+
+
+conf = 0.95
+xlabel = 'Discretization Interval Number'
+ylabel = 'Micro AUC'
+xticklabel = ('2', '4', '8', '16', '32', '64', '128')
+legend = ('DGSAN', 'DGSAN-3')
+
+plot_errorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True, text=False)
 
 
 # MT

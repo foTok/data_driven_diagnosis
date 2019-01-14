@@ -20,6 +20,7 @@ times       = 5
 test_batch  = 700
 step_len    = 128
 roc_type    = 'micro' # 'macro'
+features    = [2,3,4] # None
 #   log
 log_path = parentdir + '\\log\\bpsk\\train{}\\{}db\\'.format(train_id, snr)
 if not os.path.isdir(log_path):
@@ -55,7 +56,10 @@ for t in range(times):
         diagnoser = bn_diagnoser(model_path + model_name)
 
         bg = time.clock()         # time start
-        _, y_score = diagnoser.diagnose(inputs)
+        if features is None:
+            _, y_score = diagnoser.diagnose(inputs)
+        else:
+            _, y_score = diagnoser.diagnose2(inputs, features)
         ed = time.clock()         # time end
         logging.info('{}, predict time={} for a {} batch'.format(model_name, ed-bg, test_batch))
         print('{}, predict time={} for a {} batch'.format(model_name, ed-bg, test_batch))

@@ -21,6 +21,7 @@ test_batch  = 700
 step_len    = 64
 sample_rate = 1.0
 roc_type    = 'micro' # 'macro'
+features    = None
 #   log
 log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)
 if not os.path.isdir(log_path):
@@ -30,7 +31,7 @@ logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 # prepare data
-data_path = parentdir + '\\tank_systems\\data\\test\\'
+data_path = parentdir + '\\tank_systems\\data\\test3\\'
 mana = mt_data_manager()
 mana.load_data(data_path)
 mana.add_noise(snr)
@@ -42,7 +43,7 @@ for t in range(times):
     # prepare model file
     model_path  = parentdir + '\\graph_model\\mt\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
     model_files = get_file_list(model_path)
-    model_files = [f for f in model_files if f.startswith('mt_NB') and f.endswith('.bn')]
+    model_files = [f for f in model_files if f.startswith('mt_GSAN') and f.endswith('.bn')]
 
     inputs, y_label = mana.random_h_batch(batch=test_batch, step_num=step_len, prop=0.2, sample_rate=sample_rate)
     inputs = inputs.transpose([0, 2, 1])
@@ -52,7 +53,10 @@ for t in range(times):
         diagnoser = bn_diagnoser(model_path + model_name)
 
         bg = time.clock()         # time start
-        _, y_score = diagnoser.diagnose(inputs)
+        if features is None:
+            _, y_score = diagnoser.diagnose(inputs)
+        else:
+            _, y_score = diagnoser.diagnose2(inputs, features)
         ed = time.clock()         # time end
         logging.info('{}, predict time={} for a {} batch'.format(model_name, ed-bg, test_batch))
         print('{}, predict time={} for a {} batch'.format(model_name, ed-bg, test_batch))
