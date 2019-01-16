@@ -6,6 +6,7 @@ import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
 from ann_diagnoser.cnn_distill_diagnoser import cnn_distill_diagnoser
+from ann_diagnoser.utilities import L1
 from data_manger.bpsk_data_tank import BpskDataTank
 from data_manger.utilities import get_file_list
 import torch
@@ -17,39 +18,36 @@ import time
 import logging
 
 #   settings
-train_id            = 1
 snr                 = 20
 times               = 5
 step_len            = 128
 kernel_sizes        = (8, 4, 4, 4)
-feature_maps_vec    = [(8, 16, 32, 64)]
+feature_maps_vec    = [(8, 16, 32, 64), (16, 32, 64, 128), (32, 64, 128, 256)]
 fc_numbers          = (256, 7)
-prefix              = 'cnn_distill_'
+prefix              = 'bpsk_cnn_distill_'
 #   log
-log_path = parentdir + '\\log\\bpsk\\train{}\\{}db\\'.format(train_id, snr)
+log_path = parentdir + '\\log\\bpsk\\train\\{}db\\'.format(snr)
 if not os.path.isdir(log_path):
     os.makedirs(log_path)
-log_name = 'CNN_Training_' + prefix + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+log_name = prefix + 'training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 #prepare data
-data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
+data_path = parentdir + '\\bpsk_navigate\\data\\train\\'
 mana = BpskDataTank()
 list_files = get_file_list(data_path)
 for file in list_files:
     mana.read_data(data_path+file, step_len=step_len, snr=snr)
 
 for t in range(times):
-    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train\\{}db\\{}\\'.format(snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 
     for feature_maps in feature_maps_vec:
-        model_name = prefix + '{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
-        para_name  = prefix + 'para{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
-        fig_name = prefix + 'fig{};{};{}.jpg'.format(feature_maps, kernel_sizes, fc_numbers)
-
+        name = prefix + str(feature_maps)
+        
         diagnoser = cnn_distill_diagnoser(kernel_sizes, feature_maps, fc_numbers)
         print(diagnoser)
         loss = nn.CrossEntropyLoss()
@@ -65,8 +63,10 @@ for t in range(times):
             inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
             labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1).long()
             optimizer.zero_grad()
-            outputs, _, _ = diagnoser(inputs)
-            l = loss(outputs, labels.long())
+            _, logit, _ = diagnoser(inputs)
+            hard_loss = loss(logit, labels.long())
+            l1_los = L1(diagnoser, reg=5e-4)
+            l = hard_loss + l1_los
 
             loss_i = l.item()
             running_loss += loss_i
@@ -79,13 +79,12 @@ for t in range(times):
             l.backward()
             optimizer.step()
         ed_time = time.time()
-        msg = '{}, train time={}'.format(para_name, ed_time-bg_time)
+        msg = '{}, train time={}'.format(name, ed_time-bg_time)
         logging.info(msg)
         print(msg)
         #save model
-        torch.save(diagnoser.state_dict(), model_path + para_name)
-        torch.save(diagnoser, model_path + model_name)
-        msg = 'saved para {} and model {} to {}'.format(para_name, model_name, model_path)
+        torch.save(diagnoser, model_path + name + '.cnn')
+        msg = 'saved model {} to {}'.format(name, model_path)
         logging.info(msg)
         print(msg)
 
@@ -95,4 +94,4 @@ for t in range(times):
         pl.title("Training Loss")
         pl.xlabel("Epoch")
         pl.ylabel("Loss")
-        pl.savefig(model_path+fig_name)
+        pl.savefig(model_path+name + '.svg', format='svg')

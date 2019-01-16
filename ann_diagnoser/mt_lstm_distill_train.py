@@ -5,7 +5,8 @@ import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
-from ann_diagnoser.lstm_diagnoser2 import lstm_diagnoser2
+from ann_diagnoser.lstm_distill_diagnoser import lstm_distill_diagnoser
+from ann_diagnoser.utilities import L1
 from data_manager2.data_manager import mt_data_manager
 import torch
 import torch.nn as nn
@@ -16,39 +17,36 @@ import time
 import logging
 
 #settings
-train_id        = 2
 snr             = 20
-times           = 1
+times           = 5
 sample_rate     = 1.0
 step_len        = 64
-hidden_size_vec = [8]
+hidden_size_vec = [8, 16, 32]
 fc_numbers      = (256, 21)
-prefix          = 'lstm2'
+prefix          = 'mt_lstm_distill_'
 #   log
-log_path = parentdir + '\\log\\mt\\train{}\\{}db\\'.format(train_id, snr)
+log_path = parentdir + '\\log\\mt\\train\\{}db\\'.format(snr)
 if not os.path.isdir(log_path):
     os.makedirs(log_path)
-log_name = 'LSTM_Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+log_name = prefix+'Training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 #prepare data
-data_path = parentdir + '\\tank_systems\\data\\train{}\\'.format(train_id)
+data_path = parentdir + '\\tank_systems\\data\\train\\'
 mana = mt_data_manager()
 mana.load_data(data_path)
 mana.add_noise(snr)
 
-for t in range(times):
-    model_path = parentdir + '\\ann_diagnoser\\mt\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
+for t in range(1, times):
+    model_path = parentdir + '\\ann_diagnoser\\mt\\train\\{}db\\{}\\'.format(snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)
 
     for hidden_size in hidden_size_vec:
-        model_name = prefix + '{};{}'.format(hidden_size, fc_numbers)
-        para_name  = prefix + 'para{};{}'.format(hidden_size, fc_numbers)
-        fig_name = prefix + 'fig{};{}.jpg'.format(hidden_size, fc_numbers)
+        name = prefix + str(hidden_size)
 
-        diagnoser = lstm_diagnoser2(hidden_size, fc_numbers, input_size=(11, step_len))
+        diagnoser = lstm_distill_diagnoser(hidden_size, fc_numbers, input_size=(11, step_len))
         print(diagnoser)
         loss = nn.CrossEntropyLoss()
         optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)
@@ -64,8 +62,10 @@ for t in range(times):
             inputs = torch.from_numpy(inputs)
             labels = torch.from_numpy(labels).long()
             optimizer.zero_grad()
-            outputs = diagnoser(inputs)
-            l = loss(outputs, labels)
+            _, logits, _ = diagnoser(inputs)
+            hard_loss = loss(logits, labels)
+            l1_loss = L1(diagnoser, reg=5e-4)
+            l = hard_loss + l1_loss
 
             loss_i = l.item()
             running_loss += loss_i
@@ -78,13 +78,12 @@ for t in range(times):
             l.backward()
             optimizer.step()
         ed_time = time.time()
-        msg = '{}, train time={}'.format(para_name, ed_time-bg_time)
+        msg = '{}, train time={}'.format(name, ed_time-bg_time)
         logging.info(msg)
         print(msg)
         #save model
-        torch.save(diagnoser.state_dict(), model_path + para_name)
-        torch.save(diagnoser, model_path + model_name)
-        msg = 'saved para {} and model {} to {}'.format(para_name, model_name, model_path)
+        torch.save(diagnoser, model_path + name + '.lstm')
+        msg = 'saved model {} to {}'.format(name, model_path)
         logging.info(msg)
         print(msg)
 
@@ -94,4 +93,4 @@ for t in range(times):
         pl.title("Training Loss")
         pl.xlabel("Epoch")
         pl.ylabel("Loss")
-        pl.savefig(model_path+fig_name)
+        pl.savefig(model_path+name + '.svg', format='svg')

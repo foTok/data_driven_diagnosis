@@ -103,9 +103,8 @@ class cnn_distill_diagnoser(nn.Module):
         p = self.soft_max(distill)
         return p, logit, fea
 
-    def predict(self, fea, T=None):
+    def predict(self, fea):
         flatted = fea.view(-1, self.cnn_out_length*self.feature_maps[-1])
         logit = self.fc_sequence(flatted)
-        distill = logit / (self.T if T is None else T)
-        p = self.soft_max(distill)
-        return p
+        p = self.soft_max(logit)
+        return p, logit

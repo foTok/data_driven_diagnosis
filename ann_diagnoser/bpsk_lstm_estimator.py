@@ -21,7 +21,7 @@ times           = 5
 test_batch      = 2000
 hidden_size_vec = [8, 16, 32]
 fc_number       = (256, 7)
-step_len        =128
+step_len        = 128
 prefix          = 'lstm'
 roc_type        = 'micro' # 'macro'
 #   log

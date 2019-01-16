@@ -71,7 +71,7 @@ class plotROC:
             plt.title('Receiver Operating Characteristic')
             plt.legend(loc="lower right")
             if file is not None:
-                  plt.savefig(file)
+                  plt.savefig(file+'.svg', format='svg')
             if view:
                   plt.show()
             plt.close()
