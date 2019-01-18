@@ -169,6 +169,6 @@ if __name__ == '__main__':
             ann = 'bpsk_lstm_distill_16.lstm'
             ann = parentdir + '\\ann_diagnoser\\bpsk\\train\\20db\\{}\\'.format(args.index) + ann
             important_vars = heat_map_feature_input(ann, inputs, figname='bpsk\\importance_heat_map_between_varialbe_feature_of_LSTM')
-            important_features = heat_map_fault_feature(ann, inputs, 8, figname='bpsk\\importance_heat_map_between_feature_fault_of_LSTM')
+            important_features = heat_map_fault_feature(ann, inputs, 16, figname='bpsk\\importance_heat_map_between_feature_fault_of_LSTM')
             simple_net(important_vars, important_features, 'bpsk\\lstm_simple_net.gv', var_list=var_list, mode_list=mode_list)
 
