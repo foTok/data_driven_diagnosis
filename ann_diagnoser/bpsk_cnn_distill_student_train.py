@@ -19,7 +19,6 @@ import time
 import logging
 
 #   settings
-train_id            = 1
 snr                 = 20
 times               = 5
 step_len            = 128
@@ -31,18 +30,17 @@ feature_maps2       = (8, 4, 4, 4)
 kernel_sizes2       = (8, 4)
 fc_numbers2         = 256
 indexes             = [36, 54, 11, 62, 23, 26, 5, 8, 29]
-prefix              = 'cnn_distill3_'
-prefix2             = 'cnn_distill_student'
+prefix              = 'bpsk_cnn_student_'
 #   log
-log_path = parentdir + '\\log\\bpsk\\train{}\\{}db\\'.format(train_id, snr)
+log_path = parentdir + '\\log\\bpsk\\train\\{}db\\'.format(snr)
 if not os.path.isdir(log_path):
     os.makedirs(log_path)
-log_name = 'CNN_Training_' + prefix + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
+log_name = prefix + 'training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
 logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 #prepare data
-data_path = parentdir + '\\bpsk_navigate\\data\\train{}\\'.format(train_id)
+data_path = parentdir + '\\bpsk_navigate\\data\\train\\'
 mana = BpskDataTank()
 list_files = get_file_list(data_path)
 for file in list_files:
@@ -51,8 +49,8 @@ for file in list_files:
 # cumbersome models
 cum_models = []
 for t in range(times):
-    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
-    model_name = prefix + '{};{};{}'.format(feature_maps, kernel_sizes, fc_numbers)
+    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train\\{}db\\{}\\'
+    model_name = prefix + str(feature_maps)
     m = torch.load(model_path + model_name)
     m.eval()
     cum_models.append(m)
