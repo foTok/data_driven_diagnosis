@@ -9,6 +9,7 @@ sys.path.insert(0,parentdir)
 import torch
 import pickle
 import graphviz
+import argparse
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt 
@@ -98,7 +99,7 @@ def heat_map_fault_feature(dnnfile, x, fe, figname=None, isCNN=False, I_r=0.95):
             features2[:,i,:] = 0
         else:
             features2[:,i] = 0
-        labels2 = dnn.predict(features2)
+        labels2, _ = dnn.predict(features2)
         diff = torch.abs(labels - labels2) # batch × faults
         diff = torch.mean(diff, dim=0).detach().numpy()
         difference.append(diff)
@@ -136,40 +137,38 @@ def heat_map_fault_feature(dnnfile, x, fe, figname=None, isCNN=False, I_r=0.95):
 
 
 if __name__ == '__main__':
-    # BPSK
+    # parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument('index', type=int, help='give the index of model')
+    parser.add_argument("-s", "--system", type=str, choices=['bpsk', 'mt'], help="choose the system")
+    parser.add_argument("-n", "--network", type=str, choices=['cnn', 'lstm'], help="choose the network")
+    parser.add_argument("-b", "--batch", type=int, help="set batch size")
+    args = parser.parse_args()
+
+    system = ['bpsk', 'mt'] if args.system is None else [args.system]
+    network = ['cnn', 'lstm'] if args.network is None else [args.network]
+    test_batch = 20000 if args.batch is None else args.batch
     var_list = ['m','p','c','s0','s1']
     mode_list = ['N', 'TMA', 'PCR', 'CAR', 'MPL', 'AMP', 'TMB']
-    test_batch = 2000
-    ann1 = 'cnn_distill3_(8, 16, 32, 64);(8, 4, 4, 4);(256, 7)'
-    ann2 = 'lstm_distill_8;(256, 7)'
-    ann1 = parentdir + '\\ann_diagnoser\\bpsk\\train1\\20db\\0\\' + ann1
-    ann2 = parentdir + '\\ann_diagnoser\\bpsk\\train1\\20db\\0\\' + ann2
-    data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
-    mana = BpskDataTank()
-    list_files = get_file_list(data_path)
-    for file in list_files:
-        mana.read_data(data_path+file, step_len=128, snr=20)
-    inputs, _, _, _ = mana.random_batch(test_batch, normal=1/7, single_fault=10, two_fault=0)
-    important_vars = heat_map_feature_input(ann1, inputs, figname='bpsk\\importance_heat_map_between_varialbe_feature_of_CNN', isCNN=True)
-    important_vars2 = heat_map_feature_input(ann2, inputs, figname='bpsk\\importance_heat_map_between_varialbe_feature_of_LSTM')
-    important_features = heat_map_fault_feature(ann1, inputs, 64, figname='bpsk\\importance_heat_map_between_feature_fault_of_CNN', isCNN=True)
-    important_features2 = heat_map_fault_feature(ann2, inputs, 8, figname='bpsk\\importance_heat_map_between_feature_fault_of_LSTM')
-    simple_net(important_vars, important_features, 'bpsk\\cnn_simple_net.gv', var_list=var_list, mode_list=mode_list)
-    simple_net(important_vars2, important_features2, 'bpsk\\lstm_simple_net.gv', var_list=var_list, mode_list=mode_list)
+    # BPSK
+    if 'bpsk' in system:
+        data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
+        mana = BpskDataTank()
+        list_files = get_file_list(data_path)
+        for file in list_files:
+            mana.read_data(data_path+file, step_len=128, snr=20)
+        inputs, _, _, _ = mana.random_batch(test_batch, normal=1/7, single_fault=10, two_fault=0)
+        # CNN
+        if 'cnn' in network:
+            ann = 'bpsk_cnn_distill_(8, 16, 32, 64).cnn'
+            ann = parentdir + '\\ann_diagnoser\\bpsk\\train\\20db\\{}\\'.format(args.index) + ann
+            important_vars = heat_map_feature_input(ann, inputs, figname='bpsk\\importance_heat_map_between_varialbe_feature_of_CNN', isCNN=True)
+            important_features = heat_map_fault_feature(ann, inputs, 64, figname='bpsk\\importance_heat_map_between_feature_fault_of_CNN', isCNN=True)
+            simple_net(important_vars, important_features, 'bpsk\\cnn_simple_net.gv', var_list=var_list, mode_list=mode_list)
+        if 'lstm' in network:
+            ann = 'bpsk_lstm_distill_8.lstm'
+            ann = parentdir + '\\ann_diagnoser\\bpsk\\train\\20db\\{}\\'.format(args.index) + ann
+            important_vars = heat_map_feature_input(ann, inputs, figname='bpsk\\importance_heat_map_between_varialbe_feature_of_LSTM')
+            important_features = heat_map_fault_feature(ann, inputs, 8, figname='bpsk\\importance_heat_map_between_feature_fault_of_LSTM')
+            simple_net(important_vars, important_features, 'bpsk\\lstm_simple_net.gv', var_list=var_list, mode_list=mode_list)
 
-    # MT
-    # ann1 = 'cnn2(8, 16, 32, 64);(8, 4, 4, 4);(256, 21)'
-    # ann2 = 'lstm28;(256, 21)'
-    # ann1 = parentdir + '\\ann_diagnoser\\mt\\train2\\20db\\0\\' + ann1
-    # ann2 = parentdir + '\\ann_diagnoser\\mt\\train2\\20db\\0\\' + ann2
-    # data_path = parentdir + '\\tank_systems\\data\\test\\'
-    # mana = mt_data_manager()
-    # mana.load_data(data_path)
-    # mana.add_noise(20)
-    # inputs, _ = mana.random_h_batch(batch=test_batch, step_num=64, prop=0.2, sample_rate=1.0)
-    # heat_map_feature_input(ann1, inputs, mean=True)
-    # heat_map_feature_input(ann2, inputs)
-    # heat_map_fault_feature(ann1, inputs, 64, cnn=True)
-    # heat_map_fault_feature(ann2, inputs, 8)
-
-    print('DONE')

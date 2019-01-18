@@ -5,7 +5,6 @@ The class to compute ROC and AUC
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import cycle
-
 from sklearn.metrics import roc_curve, auc
 from sklearn.preprocessing import label_binarize
 from scipy import interp
@@ -20,14 +19,14 @@ class plotROC:
             self.tpr    = dict()
             self.roc_auc      = dict()
 
-      def analyse(self, fault_num, y_label, y_score):
+      def analyse(self, y_label, y_score):
             '''
             Args:
-                  fault_num: int, the number of faults.
                   y_label: a 1d np.array. The real labels.
                   y_score: a 2d np.array. The score.
                         batch × (fault_num+1)
             '''
+            fault_num = int(np.max(y_label))
             self.n_classes    = fault_num + 1   # 0 for normal
             y_test     = label_binarize(y_label, classes=[i for i in range(self.n_classes)])
             for i in range(self.n_classes):

@@ -64,4 +64,4 @@ class lstm_distill_diagnoser(nn.Module):
         logit = self.fc_sequence(state)
         distill = logit / (self.T if T is None else T)
         p = self.soft_max(distill)
-        return p
+        return p, logit
