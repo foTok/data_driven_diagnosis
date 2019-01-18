@@ -23,13 +23,9 @@ snr                 = 20
 times               = 5
 step_len            = 128
 T                   = 20
-kernel_sizes        = (8, 4, 4, 4)
-feature_maps        = (8, 16, 32, 64)
 fc_numbers          = (256, 7)
-feature_maps2       = (8, 4, 4, 4)
-kernel_sizes2       = (8, 4)
-fc_numbers2         = 256
-indexes             = [36, 54, 11, 62, 23, 26, 5, 8, 29]
+kernel_sizes        = (8, 4)
+indexes             = [9, 16, 4, 58, 18, 52, 27, 46, 31, 32]
 prefix              = 'bpsk_cnn_student_'
 #   log
 log_path = parentdir + '\\log\\bpsk\\train\\{}db\\'.format(snr)
@@ -49,8 +45,8 @@ for file in list_files:
 # cumbersome models
 cum_models = []
 for t in range(times):
-    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train\\{}db\\{}\\'
-    model_name = prefix + str(feature_maps)
+    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train\\{}db\\{}\\'.format(snr, t)
+    model_name = 'bpsk_cnn_distill_(8, 16, 32, 64).cnn'
     m = torch.load(model_path + model_name)
     m.eval()
     cum_models.append(m)
@@ -58,7 +54,6 @@ for t in range(times):
 # define features
 def sparse_features(models, indexes, x):
     m = cum_models[0]
-    m.eval()
     _, _, features = m(x)
     features = features[:, indexes, :]
     features = torch.mean(features, 2)
@@ -80,17 +75,14 @@ def distill_T(models, x, T):
     return p
 
 for t in range(times):
-    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train{}\\{}db\\{}\\'.format(train_id, snr, t)
-    
-    model_name = prefix2+ '{};{};{}'.format(feature_maps2, kernel_sizes2, fc_numbers2)
-    para_name  = prefix + 'para{};{};{}'.format(feature_maps2, kernel_sizes2, fc_numbers2)
-    fig_name = prefix2 + 'fig{};{};{}'.format(feature_maps2, kernel_sizes2, fc_numbers2)
+    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train\\{}db\\{}\\'.format(snr, t)
+    name = prefix + str(kernel_sizes)
 
-    diagnoser = bpsk_student_cnn_diagnoser(kernel_sizes2, feature_maps2, fc_numbers2, length=step_len)
+    diagnoser = bpsk_student_cnn_diagnoser(kernel_sizes, step_len)
     print(diagnoser)
     CE = nn.CrossEntropyLoss()
     MSE = nn.MSELoss()
-    optimizer = optim.Adam(diagnoser.parameters(), lr=0.001, weight_decay=8e-3)
+    optimizer = optim.Adam(diagnoser.parameters(), lr=0.01, weight_decay=8e-3)
 
     #train
     epoch = 1000
@@ -104,12 +96,13 @@ for t in range(times):
         optimizer.zero_grad()
 
         outputs, logits, features = diagnoser(inputs)
+        features = torch.mean(features, 2)
         distilled_outputs = soft_max(logits / T)
         distilled_cumbersome_outputs = distill_T(cum_models, inputs, T)
         learned_features = sparse_features(cum_models, indexes, inputs)
 
-        hard_loss = CE(outputs, labels)
-        soft_loss = CE(distilled_outputs, distilled_cumbersome_outputs.long())
+        hard_loss = CE(logits, labels)
+        soft_loss = cross_entropy(distilled_outputs, distilled_cumbersome_outputs)
         mse_loss = MSE(features, learned_features)
         l1_loss = L1(diagnoser, reg=5e-4)
         l = hard_loss + T**2*soft_loss + mse_loss + l1_loss
@@ -125,12 +118,12 @@ for t in range(times):
         l.backward()
         optimizer.step()
     ed_time = time.time()
-    msg = '{}, train time={}'.format(para_name, ed_time-bg_time)
+    msg = '{}, train time={}'.format(name, ed_time-bg_time)
     logging.info(msg)
     print(msg)
     #save model
-    torch.save(diagnoser, model_path + model_name)
-    msg = 'saved model {} to {}'.format(model_name, model_path)
+    torch.save(diagnoser, model_path + name + '.cnn')
+    msg = 'saved model {} to {}'.format(name, model_path)
     logging.info(msg)
     print(msg)
 
@@ -140,4 +133,4 @@ for t in range(times):
     pl.title("Training Loss")
     pl.xlabel("Epoch")
     pl.ylabel("Loss")
-    pl.savefig(model_path+fig_name)
+    pl.savefig(model_path+name +'.svg', format='svg')

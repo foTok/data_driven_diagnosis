@@ -34,8 +34,8 @@ def load_bpsk_data(data_path, snr):
         mana.read_data(data_path+file, step_len=128, snr=snr)
     return mana
 
-def sample_bpsk_data(mana, batch, np=0.4): #np, normal portion
-    inputs, labels, _, _ = mana.random_batch(batch, normal=np, single_fault=10, two_fault=0)
+def sample_bpsk_data(mana, batch, npor=0.4): #np, normal portion
+    inputs, labels, _, _ = mana.random_batch(batch, normal=npor, single_fault=10, two_fault=0)
     label = labels.detach().numpy()
     y_label = np.sum(label*np.array([1,2,3,4,5,6]), 1)
     return inputs, y_label
@@ -47,8 +47,8 @@ def load_mt_data(data_path, snr):
     mana.add_noise(snr)
     return mana
 
-def sample_mt_data(mana, batch, np=0.2):
-    inputs, y_label = mana.random_h_batch(batch=batch, step_num=64, prop=np, sample_rate=1.0)
+def sample_mt_data(mana, batch, npor=0.2):
+    inputs, y_label = mana.random_h_batch(batch=batch, step_num=64, prop=npor, sample_rate=1.0)
     inputs = torch.from_numpy(inputs)
     return inputs, y_label
 
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--system", type=str, choices=['bpsk', 'mt'], help="choose the system")
     parser.add_argument("-n", "--network", type=str, choices=['cnn', 'lstm'], help="choose the network")
     parser.add_argument("-b", "--batch", type=int, help="set batch size")
-    parser.add_argument("-k", "--key", type=int, help="key word in model names")
+    parser.add_argument("-k", "--key", type=str, help="key word in model names")
     args = parser.parse_args()
 
     # settings
