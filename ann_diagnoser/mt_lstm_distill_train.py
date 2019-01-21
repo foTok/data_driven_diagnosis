@@ -38,7 +38,7 @@ mana = mt_data_manager()
 mana.load_data(data_path)
 mana.add_noise(snr)
 
-for t in range(1, times):
+for t in range(times):
     model_path = parentdir + '\\ann_diagnoser\\mt\\train\\{}db\\{}\\'.format(snr, t)
     if not os.path.isdir(model_path):
         os.makedirs(model_path)

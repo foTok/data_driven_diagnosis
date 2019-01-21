@@ -24,7 +24,6 @@ times               = 5
 num_layer           = 2
 step_len            = 128
 T                   = 20
-fc_numbers          = (256, 7)
 indexes             = [13, 2, 11]
 prefix              = 'bpsk_lstm_student_'
 #   log

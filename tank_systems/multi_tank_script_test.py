@@ -8,7 +8,7 @@ from tank_systems.components import multi_tank
 from data_manager2.data_cfg import data_cfg
 
 # data file path
-data_path   = parentdir + '\\tank_systems\\data\\test4\\'
+data_path   = parentdir + '\\tank_systems\\data\\test\\'
 if not os.path.isdir(data_path):
     os.makedirs(data_path)
 prefix = 'multi-tank-simu'
@@ -31,14 +31,15 @@ mt = multi_tank(n, A, S)
 # the data cfg
 faults  = [0]*(2*n)
 fault_paras = [0]*(2*n)
-variables = [0]*(2*n)
+variables = [0]*(2*n+1)
+variables[0] = 'qi'
 for i in range(n):
     faults[i]   = 'tank_leakage{}'.format(i)
     faults[n+i] = 'pipe_stuck{}'.format(i)
     fault_paras[i]  = 'tank_leakage{}'.format(i)
     fault_paras[n+i]    = 'pipe_stuck{}'.format(i)
-    variables[i]    = 'height{}'.format(i)
-    variables[n+i]  = 'flow{}'.format(i)
+    variables[i+1]    = 'height{}'.format(i)
+    variables[n+i+1]  = 'flow{}'.format(i)
 cfg = data_cfg(variables, time_step, faults, fault_paras)
 
 

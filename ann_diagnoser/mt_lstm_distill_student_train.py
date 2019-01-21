@@ -1,14 +1,14 @@
 '''
-Train BPSK CNN diagnoser
+Train MT CNN diagnoser
 '''
 import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,parentdir)
-from ann_diagnoser.bpsk_student_cnn_diagnoser import bpsk_student_cnn_diagnoser
+from ann_diagnoser.mt_student_lstm_diagnoser import mt_student_lstm_diagnoser
 from ann_diagnoser.utilities import L1
 from ann_diagnoser.utilities import cross_entropy
-from data_manger.bpsk_data_tank import BpskDataTank
+from data_manager2.data_manager import mt_data_manager
 from data_manger.utilities import get_file_list
 import torch
 import torch.nn as nn
@@ -21,13 +21,14 @@ import logging
 #   settings
 snr                 = 20
 times               = 5
-step_len            = 128
+step_len            = 64
 T                   = 20
+num_layer           = 2
 kernel_sizes        = (8, 4)
-indexes             = [9, 16, 4, 58, 18, 52, 27, 46, 31, 32]
-prefix              = 'bpsk_cnn_student_'
+indexes             = [1, 2, 3, 5, 6, 7]
+prefix              = 'mt_lstm_student_'
 #   log
-log_path = parentdir + '\\log\\bpsk\\train\\{}db\\'.format(snr)
+log_path = parentdir + '\\log\\mt\\train\\{}db\\'.format(snr)
 if not os.path.isdir(log_path):
     os.makedirs(log_path)
 log_name = prefix + 'training_' + time.asctime( time.localtime(time.time())).replace(" ", "_").replace(":", "-")+'.txt'
@@ -35,17 +36,16 @@ logfile = log_path + log_name
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=LOG_FORMAT)
 #prepare data
-data_path = parentdir + '\\bpsk_navigate\\data\\train\\'
-mana = BpskDataTank()
-list_files = get_file_list(data_path)
-for file in list_files:
-    mana.read_data(data_path+file, step_len=step_len, snr=snr)
+data_path = parentdir + '\\tank_systems\\data\\train\\'
+mana = mt_data_manager()
+mana.load_data(data_path)
+mana.add_noise(snr)
 
 # cumbersome models
 cum_models = []
 for t in range(times):
-    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train\\{}db\\{}\\'.format(snr, t)
-    model_name = 'bpsk_cnn_distill_(8, 16, 32, 64).cnn'
+    model_path = parentdir + '\\ann_diagnoser\\mt\\train\\{}db\\{}\\'.format(snr, t)
+    model_name = 'mt_lstm_distill_8.lstm'
     m = torch.load(model_path + model_name)
     m.eval()
     cum_models.append(m)
@@ -54,8 +54,7 @@ for t in range(times):
 def sparse_features(models, indexes, x):
     m = cum_models[0]
     _, _, features = m(x)
-    features = features[:, indexes, :]
-    features = torch.mean(features, 2)
+    features = features[:, indexes]
     return features
 
 # define the function to obtain distilled probability
@@ -66,7 +65,7 @@ def distill_T(models, x, T):
         _, logits, _ = m(x)
         logits = logits / T
         p = soft_max(logits)
-        p = p.view(-1, 7, 1)
+        p = p.view(-1, 21, 1)
         p_list.append(p)
     p = torch.cat(p_list, 2)
     p = torch.mean(p, 2)
@@ -74,28 +73,28 @@ def distill_T(models, x, T):
     return p
 
 for t in range(times):
-    model_path = parentdir + '\\ann_diagnoser\\bpsk\\train\\{}db\\{}\\'.format(snr, t)
-    name = prefix + str(kernel_sizes)
+    model_path = parentdir + '\\ann_diagnoser\\mt\\train\\{}db\\{}\\'.format(snr, t)
+    name = prefix + str(num_layer)
 
-    diagnoser = bpsk_student_cnn_diagnoser(kernel_sizes, step_len)
+    diagnoser = mt_student_lstm_diagnoser(num_layer, step_len)
     print(diagnoser)
     CE = nn.CrossEntropyLoss()
     MSE = nn.MSELoss()
     optimizer = optim.Adam(diagnoser.parameters(), lr=0.01, weight_decay=8e-3)
 
     #train
-    epoch = 1000
+    epoch = 2000
     batch = 1000
     train_loss = []
     running_loss = 0.0
     bg_time = time.time()
     for i in range(epoch):
-        inputs, labels, _, _ = mana.random_batch(batch, normal=0.4, single_fault=10, two_fault=0)
-        labels = torch.sum(labels*torch.Tensor([1,2,3,4,5,6]), 1).long()
+        inputs, labels =  mana.random_h_batch(batch=batch, step_num=step_len, prop=0.2, sample_rate=1.0)
+        inputs = torch.from_numpy(inputs)
+        labels = torch.from_numpy(labels).long()
         optimizer.zero_grad()
 
         outputs, logits, features = diagnoser(inputs)
-        features = torch.mean(features, 2)
         distilled_outputs = soft_max(logits / T)
         distilled_cumbersome_outputs = distill_T(cum_models, inputs, T)
         learned_features = sparse_features(cum_models, indexes, inputs)
@@ -121,7 +120,7 @@ for t in range(times):
     logging.info(msg)
     print(msg)
     #save model
-    torch.save(diagnoser, model_path + name + '.cnn')
+    torch.save(diagnoser, model_path + name + '.lstm')
     msg = 'saved model {} to {}'.format(name, model_path)
     logging.info(msg)
     print(msg)

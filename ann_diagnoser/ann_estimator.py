@@ -11,7 +11,7 @@ import torch
 import argparse
 import numpy as np
 import matplotlib.pyplot as pl
-from statistics.plot_roc import plotROC
+from statistics.plot import plotROC
 from data_manger.bpsk_data_tank import BpskDataTank
 from data_manager2.data_manager import mt_data_manager
 from data_manger.utilities import get_file_list
@@ -95,14 +95,13 @@ if __name__ == "__main__":
     times       = 5
     batch       = 2000 if args.batch is None else args.batch
     roc_type    = 'micro' # 'macro'
-    system      = ['bpsk', 'mt'] if args.system is None else [args.system]
     network     = ['cnn', 'lstm'] if args.network is None else [args.network]
     key         = '' if args.key is None else args.key
     # log
-    log_path = parentdir + '\\log\\bpsk\\train\\{}db\\'.format(snr)
+    log_path = parentdir + '\\log\\{}\\test\\{}db\\'.format(args.system, snr)
     set_log(log_path)
 
-    if 'bpsk' in system:
+    if 'bpsk'==args.system:
         msg = 'Estimate BPSK.'
         logging.info(msg)
         print(msg)
@@ -116,7 +115,7 @@ if __name__ == "__main__":
             inputs, y_label = sample_bpsk_data(mana, batch)
             estimate_model(model_path, network, inputs, y_label, key)
 
-    if 'mt' in system:
+    if 'mt'==args.system:
         msg = 'Estimate MT.'
         logging.info(msg)
         print(msg)

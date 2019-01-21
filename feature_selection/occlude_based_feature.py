@@ -66,6 +66,7 @@ def heat_map_feature_input(dnnfile, x, figname=None, isCNN=False, I_r=0.95):
     with open(logfile, 'w') as f:
         f.write('\n'.join(log))
 
+    plt.clf()
     ax = sns.heatmap(Ivf, vmin=0, vmax=1, cmap="YlGnBu")
     ax.invert_yaxis()
     ax.set_ylabel('Variables')
@@ -122,6 +123,7 @@ def heat_map_fault_feature(dnnfile, x, fe, figname=None, isCNN=False, I_r=0.95):
     with open(logfile, 'w') as f:
         f.write('\n'.join(log))
 
+    plt.clf()
     ax = sns.heatmap(Ivf, vmin=0, vmax=1, cmap="YlGnBu")
     ax.invert_yaxis()
     ax.set_ylabel('Features')
@@ -152,7 +154,7 @@ if __name__ == '__main__':
     mode_list = ['N', 'TMA', 'PCR', 'CAR', 'MPL', 'AMP', 'TMB']
     # BPSK
     if 'bpsk' in system:
-        data_path = parentdir + '\\bpsk_navigate\\data\\test\\'
+        data_path = parentdir + '\\bpsk_navigate\\data\\train\\'
         mana = BpskDataTank()
         list_files = get_file_list(data_path)
         for file in list_files:
@@ -172,3 +174,25 @@ if __name__ == '__main__':
             important_features = heat_map_fault_feature(ann, inputs, 16, figname='bpsk\\importance_heat_map_between_feature_fault_of_LSTM')
             simple_net(important_vars, important_features, 'bpsk\\lstm_simple_net.gv', var_list=var_list, mode_list=mode_list)
 
+    # BPSK
+    if 'mt' in system:
+        data_path = parentdir + '\\tank_systems\\data\\train\\'
+        mana = mt_data_manager()
+        mana.load_data(data_path)
+        mana.add_noise(20)
+        var_list = mana.cfg.variables
+        mode_list = ['normal'] + mana.cfg.faults
+        inputs, _ = mana.random_h_batch(batch=test_batch, step_num=64, prop=0.2, sample_rate=1.0)
+        # CNN
+        if 'cnn' in network:
+            ann = 'mt_cnn_distill_(8, 16, 32, 64).cnn'
+            ann = parentdir + '\\ann_diagnoser\\mt\\train\\20db\\{}\\'.format(args.index) + ann
+            important_vars = heat_map_feature_input(ann, inputs, figname='mt\\importance_heat_map_between_varialbe_feature_of_CNN', isCNN=True)
+            important_features = heat_map_fault_feature(ann, inputs, 64, figname='mt\\importance_heat_map_between_feature_fault_of_CNN', isCNN=True)
+            simple_net(important_vars, important_features, 'mt\\cnn_simple_net.gv', var_list=var_list, mode_list=mode_list)
+        if 'lstm' in network:
+            ann = 'mt_lstm_distill_8.lstm'
+            ann = parentdir + '\\ann_diagnoser\\mt\\train\\20db\\{}\\'.format(args.index) + ann
+            important_vars = heat_map_feature_input(ann, inputs, figname='mt\\importance_heat_map_between_varialbe_feature_of_LSTM')
+            important_features = heat_map_fault_feature(ann, inputs, 8, figname='mt\\importance_heat_map_between_feature_fault_of_LSTM')
+            simple_net(important_vars, important_features, 'mt\\lstm_simple_net.gv', var_list=var_list, mode_list=mode_list)
