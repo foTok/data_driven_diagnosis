@@ -10,6 +10,7 @@ import numpy as np
 import argparse
 from collections import Counter
 from statistics.plot import plotROC
+from data_manger.utilities import get_file_list
 
 
 def weka_slide_window_estimator(file_name, step_len, strategy):
@@ -64,8 +65,7 @@ def weka_slide_window_estimator(file_name, step_len, strategy):
     roc = plotROC()
     roc.analyse(labels, predict_vector)
     auc = roc.auc('micro')
-    print('AUC = {}'.format(auc))
-    roc.plot('micro', view=True)
+    return auc
 
 def weka_estimator(file_name):
     labels = []
@@ -90,17 +90,23 @@ def weka_estimator(file_name):
     roc = plotROC()
     roc.analyse(labels, predict_vector)
     auc = roc.auc('micro')
-    print('AUC = {}'.format(auc))
-    roc.plot('micro', view=True)
+    return auc
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--system", type=str, choices=['bpsk', 'mt'], help="choose the system")
-    parser.add_argument("-f", "--file_name", type=str, help="result file name")
     parser.add_argument("-l", "--length", type=int, help="step length")
     parser.add_argument("-t", "--strategy", type=str, help="strategy")
     args = parser.parse_args()
 
     path = parentdir + '\\utilities\\{}\\'.format(args.system)
-    weka_slide_window_estimator(path+args.file_name, args.length, args.strategy)
+    files = get_file_list(path)
+    files = [f for f in files if f.endswith('.txt')]
+    
+    for f in files:
+        if f.startswith('CNN') or f.startswith('LSTM'):
+            auc = weka_estimator(path + f)
+        else:
+            auc = weka_slide_window_estimator(path+f, args.length, args.strategy)
+        print('AUC of {} is: {}.'.format(f, auc))

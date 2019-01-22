@@ -1,0 +1,11 @@
+(base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s bpsk -l 128 -t 10
+AUC of CNN_NB.txt is: 0.9836666666666667.
+AUC of LSTM_NB.txt is: 0.7897083333333333.
+AUC of NB.txt is: 0.65.
+AUC of PCA_NB.txt is: 0.65.
+
+(base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s mt -l 64 -t 10
+AUC of CNN_NB.txt is: 0.889890625.
+AUC of LSTM_NB.txt is: 0.8920703125.
+AUC of NB.txt is: 0.8061484375000001.
+AUC of PCA_NB.txt is: 0.781890625.

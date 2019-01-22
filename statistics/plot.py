@@ -137,31 +137,51 @@ def plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True,
 
 
 if __name__ == "__main__":
-    # parameters
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--system", type=str, choices=['bpsk', 'mt'], help="choose the system")
-    parser.add_argument("-n", "--network", type=str, choices=['cnn', 'lstm'], help="choose the network")
-    parser.add_argument("-t", "--type", type=str, choices=['auc', 'dt'], help="AUC or diagnosis time")
-    args = parser.parse_args()
+      # BPSK diagnosis time CNN
+      mean = np.array([[0.3220, 0.1029]])
+      std  = np.array([[0.0123, 0.0018]])
+      conf = 0.95
+      xlabel = 'Model'
+      ylabel = 'Diagnosis Time (s)'
+      xticklabel = ['Cumbersome Model', 'Student Model']
+      legend = ['Diagnosis Time']
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
+      # BPSK diagnosis time LSTM
+      mean = np.array([[1.4540, 0.3814]])
+      std  = np.array([[0.0232, 0.0152]])
+      conf = 0.95
+      xlabel = 'Model'
+      ylabel = 'Diagnosis Time (s)'
+      xticklabel = ['Cumbersome Model', 'Student Model']
+      legend = ['Diagnosis Time']
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
 
-    if args.system is None or args.system=='bpsk':
-        if args.network is None or args.network=='cnn':
-            if args.type is None or args.type=='dt':
-                mean = np.array([[0.3220, 0.1029]])
-                std  = np.array([[0.0123, 0.0018]])
-                conf = 0.95
-                xlabel = 'Model'
-                ylabel = 'Diagnosis Time (s)'
-                xticklabel = ['Cumbersome Model', 'Student Model']
-                legend = ['Diagnosis Time']
-                plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
-            if args.type is None or args.type=='auc':
-                mean = np.array([[0.658, 0.998]])
-                std  = np.array([[0, 0]])
-                conf = 0.95
-                xlabel = 'Feature Type'
-                ylabel = 'AUC'
-                xticklabel = ['Observed Variable', 'Learned Features']
-                legend = ['AUC']
-                plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
+      # BPSK AUC Comparison of BNs with Different Features in BPSK System
+      mean = np.array([[0.65, 0.65, 0.7897, 0.9837]])
+      std  = np.array([[0, 0, 0, 0]])
+      conf = 0.95
+      xlabel = 'Feature Type'
+      ylabel = 'AUC'
+      xticklabel = ['Original Variables', 'PCA Features', 'LSTM Features', 'CNN Features']
+      legend = ['AUC']
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
 
+      # MT AUC Comparison of Cumbersome and Student Models
+      mean = np.array([[0.9984, 0.8836], [0.9971, 0.9438]])
+      std  = np.array([[0.0009, 0.0264], [0.0016, 0.0221]])
+      conf = 0.95
+      xlabel = 'Model'
+      ylabel = 'AUC'
+      xticklabel = ['Cumbersome Model', 'Student Model']
+      legend = ['Cumbersome Model', 'Student Model']
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
+
+      # MT AUC Comparison of BNs with Different Features in BPSK System
+      mean = np.array([[0.8061484375000001, 0.781890625, 0.8920703125, 0.889890625]])
+      std  = np.array([[0, 0, 0, 0]])
+      conf = 0.95
+      xlabel = 'Feature Type'
+      ylabel = 'AUC'
+      xticklabel = ['Original Variables', 'PCA Features', 'LSTM Features', 'CNN Features']
+      legend = ['AUC']
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
