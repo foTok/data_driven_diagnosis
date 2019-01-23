@@ -77,9 +77,9 @@ if __name__ == "__main__":
         _, fe_num = inputs.shape
         labels = np.repeat(labels, step)
         var_list = ['fe'+str(i) for i in range(fe_num)]
-        numpy2arff(inputs, labels, 'pca_train.arff', var_list, mode_list)
+        numpy2arff(inputs, labels, 'pca_train2.arff', var_list, mode_list)
         # test
-        test_path = parentdir + '\\tank_systems\\data\\test\\'
+        test_path = parentdir + '\\tank_systems\\data\\test2\\'
         mana_test = mt_data_manager()
         mana_test.load_data(test_path)
         mana_test.add_noise(snr)
@@ -89,4 +89,4 @@ if __name__ == "__main__":
         inputs = inputs.reshape((batch*step,variable))
         labels = np.repeat(labels, step)
         inputs = pca_selection.transform(inputs)
-        numpy2arff(inputs, labels, 'pca_test.arff', var_list, mode_list)
+        numpy2arff(inputs, labels, 'pca_test2.arff', var_list, mode_list)

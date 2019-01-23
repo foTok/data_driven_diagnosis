@@ -97,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--model", type=str, help="choose the model file")
     parser.add_argument("-o", "--output", type=str, help="output file name")
     parser.add_argument("-b", "--batch", type=int, help="set batch size")
-    parser.add_argument("-p", "--purpose", type=str, choices=['train', 'test'], help="purpose")
+    parser.add_argument("-p", "--purpose", type=str, choices=['train', 'test', 'test2'], help="purpose")
     args = parser.parse_args()
 
     snr = 20

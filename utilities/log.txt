@@ -5,7 +5,12 @@ AUC of NB.txt is: 0.65.
 AUC of PCA_NB.txt is: 0.65.
 
 (base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s mt -l 64 -t 10
-AUC of CNN_NB.txt is: 0.889890625.
+AUC of CNN_NB.txt is: 0.8954453125.
+AUC of CNN_NB2.txt is: 0.977359375.
 AUC of LSTM_NB.txt is: 0.8920703125.
+AUC of LSTM_NB2.txt is: 0.96821875.
 AUC of NB.txt is: 0.8061484375000001.
+AUC of NB2.txt is: 0.8505156249999999.
 AUC of PCA_NB.txt is: 0.781890625.
+AUC of PCA_NB2.txt is: 0.8231640625.
+

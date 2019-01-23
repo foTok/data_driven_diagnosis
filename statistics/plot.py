@@ -176,8 +176,8 @@ if __name__ == "__main__":
       legend = ['Cumbersome Model', 'Student Model']
       plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
 
-      # MT AUC Comparison of BNs with Different Features in BPSK System
-      mean = np.array([[0.8061484375000001, 0.781890625, 0.8920703125, 0.889890625]])
+      # MT AUC Comparison of BNs with Different Features in MT System, Same Data
+      mean = np.array([[0.8505156249999999, 0.8231640625, 0.96821875, 0.977359375]])
       std  = np.array([[0, 0, 0, 0]])
       conf = 0.95
       xlabel = 'Feature Type'
@@ -185,3 +185,13 @@ if __name__ == "__main__":
       xticklabel = ['Original Variables', 'PCA Features', 'LSTM Features', 'CNN Features']
       legend = ['AUC']
       plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
+
+      # MT AUC Comparison of BNs with Different Features in MT System, Additional Data
+      mean = np.array([[0.8061484375000001, 0.781890625, 0.8920703125, 0.8954453125]])
+      std  = np.array([[0, 0, 0, 0]])
+      conf = 0.95
+      xlabel = 'Feature Type'
+      ylabel = 'AUC'
+      xticklabel = ['Original Variables', 'PCA Features', 'LSTM Features', 'CNN Features']
+      legend = ['AUC']
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False, ylimt=(0, 1))
