@@ -124,8 +124,8 @@ def plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, view=True,
         # attach some text labels
         for rect in rects:
             height = rect.get_height()
-            ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
-                    '%d' % int(height),
+            ax.text(rect.get_x() + rect.get_width()/2., 1.05*height+0.02,
+                    '%.4f' % height,
                     ha='center', va='bottom')
     if text:
         for _rects in rects:
@@ -142,29 +142,29 @@ if __name__ == "__main__":
       std  = np.array([[0.0123, 0.0018]])
       conf = 0.95
       xlabel = 'Model'
-      ylabel = 'Diagnosis Time (s)'
+      ylabel = 'Diagnosis Time /s'
       xticklabel = ['Cumbersome Model', 'Student Model']
       legend = ['Diagnosis Time']
-      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 0.40))
       # BPSK diagnosis time LSTM
       mean = np.array([[1.4540, 0.3814]])
       std  = np.array([[0.0232, 0.0152]])
       conf = 0.95
       xlabel = 'Model'
-      ylabel = 'Diagnosis Time (s)'
+      ylabel = 'Diagnosis Time /s'
       xticklabel = ['Cumbersome Model', 'Student Model']
       legend = ['Diagnosis Time']
-      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.7))
 
       # BPSK AUC Comparison of BNs with Different Features in BPSK System
-      mean = np.array([[0.65, 0.65, 0.7897, 0.9837]])
-      std  = np.array([[0, 0, 0, 0]])
+      mean = np.array([[0.65, 0.65, 0.978883333, 0.78864375]])
+      std  = np.array([[0, 0, 0.003864611, 0.015253609]])
       conf = 0.95
       xlabel = 'Feature Type'
       ylabel = 'AUC'
-      xticklabel = ['Original Variables', 'PCA Features', 'LSTM Features', 'CNN Features']
+      xticklabel = ['Original Variables', 'PCA Features', 'CNN Features', 'LSTM Features']
       legend = ['AUC']
-      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.2))
 
       # MT AUC Comparison of Cumbersome and Student Models
       mean = np.array([[0.9984, 0.8836], [0.9971, 0.9438]])
@@ -174,24 +174,18 @@ if __name__ == "__main__":
       ylabel = 'AUC'
       xticklabel = ['Cumbersome Model', 'Student Model']
       legend = ['Cumbersome Model', 'Student Model']
-      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.3))
 
-      # MT AUC Comparison of BNs with Different Features in MT System, Same Data
-      mean = np.array([[0.8505156249999999, 0.8231640625, 0.96821875, 0.977359375]])
-      std  = np.array([[0, 0, 0, 0]])
+      # MT AUC Comparison of BNs with Different Features in MT System
+      mean = np.array([[0.8430, 0.8258, 0.9420, 0.9731],
+                       [0.8060, 0.7816, 0.8733, 0.9036]])
+      std  = np.array([[0.0190, 0.0025, 0.0455, 0.0108],
+                       [0.0008, 0.0006, 0.0305, 0.0065]])
       conf = 0.95
       xlabel = 'Feature Type'
       ylabel = 'AUC'
-      xticklabel = ['Original Variables', 'PCA Features', 'LSTM Features', 'CNN Features']
-      legend = ['AUC']
-      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False)
+      xticklabel = ['Original Variables', 'PCA Features', 'CNN Features', 'LSTM Features']
+      legend = ['Set1', 'Set2']
+      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.3))
 
-      # MT AUC Comparison of BNs with Different Features in MT System, Additional Data
-      mean = np.array([[0.8061484375000001, 0.781890625, 0.8920703125, 0.8954453125]])
-      std  = np.array([[0, 0, 0, 0]])
-      conf = 0.95
-      xlabel = 'Feature Type'
-      ylabel = 'AUC'
-      xticklabel = ['Original Variables', 'PCA Features', 'LSTM Features', 'CNN Features']
-      legend = ['AUC']
-      plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=False, ylimt=(0, 1))
+

@@ -98,9 +98,10 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--system", type=str, choices=['bpsk', 'mt'], help="choose the system")
     parser.add_argument("-l", "--length", type=int, help="step length")
     parser.add_argument("-t", "--strategy", type=str, help="strategy")
+    parser.add_argument("-i", "--index", type=int, help="index")
     args = parser.parse_args()
 
-    path = parentdir + '\\utilities\\{}\\'.format(args.system)
+    path = parentdir + '\\utilities\\{}\\{}\\'.format(args.system, args.index)
     files = get_file_list(path)
     files = [f for f in files if f.endswith('.txt')]
     

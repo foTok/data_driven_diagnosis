@@ -77,8 +77,20 @@ if __name__ == "__main__":
         _, fe_num = inputs.shape
         labels = np.repeat(labels, step)
         var_list = ['fe'+str(i) for i in range(fe_num)]
-        numpy2arff(inputs, labels, 'pca_train2.arff', var_list, mode_list)
-        # test
+        numpy2arff(inputs, labels, 'pca_train.arff', var_list, mode_list)
+        # test 1
+        test_path = parentdir + '\\tank_systems\\data\\test\\'
+        mana_test = mt_data_manager()
+        mana_test.load_data(test_path)
+        mana_test.add_noise(snr)
+        inputs, labels = mana_test.random_h_batch(batch=batch, step_num=64, prop=0.2, sample_rate=1.0)
+        batch, variable, step = inputs.shape
+        inputs = inputs.transpose((0, 2, 1))
+        inputs = inputs.reshape((batch*step,variable))
+        labels = np.repeat(labels, step)
+        inputs = pca_selection.transform(inputs)
+        numpy2arff(inputs, labels, 'pca_test.arff', var_list, mode_list)
+        # test 2
         test_path = parentdir + '\\tank_systems\\data\\test2\\'
         mana_test = mt_data_manager()
         mana_test.load_data(test_path)
