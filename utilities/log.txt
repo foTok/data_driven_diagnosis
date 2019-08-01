@@ -4,30 +4,35 @@ AUC of CNN_NB.txt is: 0.9836666666666667.
 AUC of LSTM_NB.txt is: 0.7897083333333333.
 AUC of NB.txt is: 0.65.
 AUC of PCA_NB.txt is: 0.65.
+AUC of cnn_encoder.txt is: 0.8684583333333333
 
 (base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s bpsk -l 128 -t 10 -i 1
 AUC of CNN_NB.txt is: 0.9740416666666667.
 AUC of LSTM_NB.txt is: 0.7686354166666667.
 AUC of NB.txt is: 0.65.
 AUC of PCA_NB.txt is: 0.65.
+AUC of cnn_encoder.txt is: 0.8586875
 
 (base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s bpsk -l 128 -t 10 -i 2
 AUC of CNN_NB.txt is: 0.98228125.
 AUC of LSTM_NB.txt is: 0.8080833333333335.
 AUC of NB.txt is: 0.65.
 AUC of PCA_NB.txt is: 0.65.
+AUC of cnn_encoder.txt is: 0.86590625
 
 (base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s bpsk -l 128 -t 10 -i 3
 AUC of CNN_NB.txt is: 0.9795833333333331.
 AUC of LSTM_NB.txt is: 0.7745416666666668.
 AUC of NB.txt is: 0.65.
 AUC of PCA_NB.txt is: 0.65.
+AUC of cnn_encoder.txt is: 0.8673645833333334
 
 (base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s bpsk -l 128 -t 10 -i 4
 AUC of CNN_NB.txt is: 0.97484375.
 AUC of LSTM_NB.txt is: 0.80225.
 AUC of NB.txt is: 0.65.
 AUC of PCA_NB.txt is: 0.65.
+AUC of cnn_encoder.txt is: 0.8659791666666666
 
 
 
@@ -41,6 +46,8 @@ AUC of NB.txt is: 0.8061484375000001.
 AUC of NB2.txt is: 0.8505156249999999.
 AUC of PCA_NB.txt is: 0.781890625.
 AUC of PCA_NB2.txt is: 0.8231640625.
+AUC of cnn_encoder.txt is: 0.8582500000000001
+AUC of cnn_encoder2.txt is: 0.8905234375
 
 (base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s mt -l 64 -t 10 -i 1
 AUC of CNN_NB.txt is: 0.8126875.
@@ -51,6 +58,8 @@ AUC of NB.txt is: 0.8051640624999999.
 AUC of NB2.txt is: 0.8051640624999999.
 AUC of PCA_NB.txt is: 0.7817500000000001.
 AUC of PCA_NB2.txt is: 0.8271015625.
+AUC of cnn_encoder.txt is: 0.8611328125
+AUC of cnn_encoder2.txt is: 0.8958671874999999
 
 (base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s mt -l 64 -t 10 -i 2
 AUC of CNN_NB.txt is: 0.88542435.
@@ -61,6 +70,8 @@ AUC of NB.txt is: 0.8049531249999999.
 AUC of NB2.txt is: 0.8512890624999999.
 AUC of PCA_NB.txt is: 0.781046875.
 AUC of PCA_NB2.txt is: 0.8261171875000001.
+AUC of cnn_encoder.txt is: 0.86190625
+AUC of cnn_encoder2.txt is: 0.8950937499999999
 
 (base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s mt -l 64 -t 10 -i 3
 AUC of CNN_NB.txt is: 0.8851796875.
@@ -71,7 +82,10 @@ AUC of NB.txt is: 0.8064296875.
 AUC of NB2.txt is: 0.8549453125.
 AUC of PCA_NB.txt is: 0.7808359375.
 AUC of PCA_NB2.txt is: 0.823375.
+AUC of cnn_encoder.txt is: 0.8697109375000001
+AUC of cnn_encoder2.txt is: 0.89846875
 
+(base) D:\Workspace\python\data_driven_approach\utilities>python slide_window_estimator.py -s mt -l 64 -t 10 -i 4
 AUC of CNN_NB.txt is: 0.88778125.
 AUC of CNN_NB2.txt is: 0.9679375.
 AUC of LSTM_NB.txt is: 0.9100703125.
@@ -80,3 +94,5 @@ AUC of NB.txt is: 0.8072031249999999.
 AUC of NB2.txt is: 0.853328125.
 AUC of PCA_NB.txt is: 0.782453125.
 AUC of PCA_NB2.txt is: 0.8291406250000001.
+AUC of cnn_encoder.txt is: 0.8600078125
+AUC of cnn_encoder2.txt is: 0.8893984375

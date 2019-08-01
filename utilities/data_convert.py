@@ -89,6 +89,18 @@ def feature2arff(input, label, model, file, mode_list, rel=None):
     var_list = ['fe'+str(i) for i in range(fea_num)]
     numpy2arff(features, label, file, var_list, mode_list, rel)
 
+def encoder2arff(input, label, model, file, mode_list, rel=None):
+    if isinstance(input, np.ndarray):
+        input = torch.tensor(input)
+    encoder = torch.load(model)
+    encoder.eval()
+    features = encoder.encode(input)
+    features = torch.mean(features, 2)
+    features = features.detach().numpy()
+    _, fea_num = features.shape
+    var_list = ['fe'+str(i) for i in range(fea_num)]
+    numpy2arff(features, label, file, var_list, mode_list, rel)
+
 
 if __name__ == "__main__":
     # parameters
@@ -117,6 +129,8 @@ if __name__ == "__main__":
         if args.model is None:
             inputs = inputs.detach().numpy()
             numpy2arff(inputs, labels, args.output, var_list, mode_list)
+        elif 'encoder' in args.model:
+            encoder2arff(inputs, labels, args.model, args.output, mode_list)
         else:
             feature2arff(inputs, labels, args.model, args.output, mode_list)
 
@@ -131,5 +145,7 @@ if __name__ == "__main__":
         inputs, labels = mana.random_h_batch(batch=batch, step_num=64, prop=0.2, sample_rate=1.0)
         if args.model is None:
             numpy2arff(inputs, labels, args.output, var_list, mode_list)
+        elif 'encoder' in args.model:
+            encoder2arff(inputs, labels, args.model, args.output, mode_list)
         else:
             feature2arff(inputs, labels, args.model, args.output, mode_list)

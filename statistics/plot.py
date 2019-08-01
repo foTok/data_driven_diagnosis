@@ -157,12 +157,12 @@ if __name__ == "__main__":
       plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.7))
 
       # BPSK AUC Comparison of BNs with Different Features in BPSK System
-      mean = np.array([[0.65, 0.65, 0.978883333, 0.78864375]])
-      std  = np.array([[0, 0, 0.003864611, 0.015253609]])
+      mean = np.array([[0.65, 0.65, 0.8652791666666667, 0.978883333, 0.78864375]])
+      std  = np.array([[0, 0, 0.0034289755414538665, 0.003864611, 0.015253609]])
       conf = 0.95
       xlabel = 'Feature Type'
       ylabel = 'AUC'
-      xticklabel = ['Original Variables', 'PCA Features', 'CNN Features', 'LSTM Features']
+      xticklabel = ['Original', 'PCA', 'Autoencoder', 'CNN Distill', 'LSTM Distill']
       legend = ['AUC']
       plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.2))
 
@@ -177,14 +177,14 @@ if __name__ == "__main__":
       plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.3))
 
       # MT AUC Comparison of BNs with Different Features in MT System
-      mean = np.array([[0.8430, 0.8258, 0.9420, 0.9731],
-                       [0.8060, 0.7816, 0.8733, 0.9036]])
-      std  = np.array([[0.0190, 0.0025, 0.0455, 0.0108],
-                       [0.0008, 0.0006, 0.0305, 0.0065]])
+      mean = np.array([[0.8430, 0.8258, 0.8938703125, 0.9420, 0.9731],
+                       [0.8060, 0.7816, 0.8622015625000001, 0.8733, 0.9036]])
+      std  = np.array([[0.0190, 0.0025, 0.0034008579742378954, 0.0455, 0.0108],
+                       [0.0008, 0.0006, 0.0039508868417024515, 0.0305, 0.0065]])
       conf = 0.95
       xlabel = 'Feature Type'
       ylabel = 'AUC'
-      xticklabel = ['Original Variables', 'PCA Features', 'CNN Features', 'LSTM Features']
+      xticklabel = ['Original', 'PCA', 'Autoencoder', 'CNN Distill', 'LSTM Distill']
       legend = ['Set1', 'Set2']
       plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.3))
 
