@@ -162,7 +162,7 @@ if __name__ == "__main__":
       conf = 0.95
       xlabel = 'Feature Type'
       ylabel = 'AUC'
-      xticklabel = ['Original', 'PCA', 'Autoencoder', 'CNN Distill', 'LSTM Distill']
+      xticklabel = ['Original', 'PCA', 'Autoencoder', 'CNN Distilling', 'LSTM Distilling']
       legend = ['AUC']
       plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.2))
 
@@ -184,7 +184,7 @@ if __name__ == "__main__":
       conf = 0.95
       xlabel = 'Feature Type'
       ylabel = 'AUC'
-      xticklabel = ['Original', 'PCA', 'Autoencoder', 'CNN Distill', 'LSTM Distill']
+      xticklabel = ['Original', 'PCA', 'Autoencoder', 'CNN Distilling', 'LSTM Distilling']
       legend = ['Set1', 'Set2']
       plotErrorbar(mean, std, conf, xlabel, ylabel, xticklabel, legend, text=True, ylimt=(0, 1.3))
 
